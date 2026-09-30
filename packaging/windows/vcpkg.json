@@ -1,0 +1,10 @@
+{
+  "name": "atena",
+  "version-string": "0.4.3",
+  "dependencies": [
+    "sqlite3",
+    "json-c",
+    "curl",
+    "openssl"
+  ]
+}

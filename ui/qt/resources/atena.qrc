@@ -1,0 +1,49 @@
+<RCC>
+  <qresource prefix="/branding">
+    <file alias="atena-app-icon.png">branding/atena-app-icon.png</file>
+    <file alias="atena-ia-logo-horizontal.png">branding/atena-ia-logo-horizontal.png</file>
+    <file alias="app-icon/atena-16x16.png">branding/app-icon/atena-16x16.png</file>
+    <file alias="app-icon/atena-24x24.png">branding/app-icon/atena-24x24.png</file>
+    <file alias="app-icon/atena-32x32.png">branding/app-icon/atena-32x32.png</file>
+    <file alias="app-icon/atena-48x48.png">branding/app-icon/atena-48x48.png</file>
+    <file alias="app-icon/atena-64x64.png">branding/app-icon/atena-64x64.png</file>
+    <file alias="app-icon/atena-96x96.png">branding/app-icon/atena-96x96.png</file>
+    <file alias="app-icon/atena-128x128.png">branding/app-icon/atena-128x128.png</file>
+    <file alias="app-icon/atena-256x256.png">branding/app-icon/atena-256x256.png</file>
+    <file alias="app-icon/atena-512x512.png">branding/app-icon/atena-512x512.png</file>
+  </qresource>
+  <qresource prefix="/icons/navigation">
+    <file alias="diagnostics.png">icons/navigation/diagnostics.png</file>
+    <file alias="files.png">icons/navigation/files.png</file>
+    <file alias="history.png">icons/navigation/history.png</file>
+    <file alias="library.png">icons/navigation/library.png</file>
+    <file alias="models.png">icons/navigation/models.png</file>
+    <file alias="new-conversation.png">icons/navigation/new-conversation.png</file>
+    <file alias="privacy.png">icons/navigation/privacy.png</file>
+    <file alias="projects.png">icons/navigation/projects.png</file>
+    <file alias="providers.png">icons/navigation/providers.png</file>
+    <file alias="search.png">icons/navigation/search.png</file>
+    <file alias="settings.png">icons/navigation/settings.png</file>
+    <file alias="tools.png">icons/navigation/tools.png</file>
+  </qresource>
+  <qresource prefix="/icons/quick-actions">
+    <file alias="add-knowledge.png">icons/quick-actions/add-knowledge.png</file>
+    <file alias="mode-cloud.png">icons/quick-actions/mode-cloud.png</file>
+    <file alias="mode-hybrid.png">icons/quick-actions/mode-hybrid.png</file>
+    <file alias="mode-local.png">icons/quick-actions/mode-local.png</file>
+    <file alias="quick-analyze.png">icons/quick-actions/quick-analyze.png</file>
+    <file alias="quick-create.png">icons/quick-actions/quick-create.png</file>
+    <file alias="quick-search.png">icons/quick-actions/quick-search.png</file>
+    <file alias="quick-study.png">icons/quick-actions/quick-study.png</file>
+  </qresource>
+  <qresource prefix="/icons/system">
+    <file alias="send.svg">icons/system/send.svg</file>
+    <file alias="stop.svg">icons/system/stop.svg</file>
+  </qresource>
+  <qresource prefix="/illustrations">
+    <file alias="athena-about-onboarding.png">illustrations/athena-about-onboarding.png</file>
+    <file alias="home-hero.png">illustrations/home-hero.png</file>
+    <file alias="library-knowledge.png">illustrations/library-knowledge.png</file>
+    <file alias="models-providers.png">illustrations/models-providers.png</file>
+  </qresource>
+</RCC>

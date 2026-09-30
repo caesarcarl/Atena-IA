@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+# These binaries are generated during postinst and therefore are not tracked as
+# regular data members by dpkg. Remove them explicitly on package removal/upgrade.
+rm -f /usr/bin/atena
+rm -f /usr/libexec/atena/atena-core
+rm -f /usr/libexec/atena/atena-ui-bin
+exit 0

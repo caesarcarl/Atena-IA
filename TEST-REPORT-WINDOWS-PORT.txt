@@ -1,0 +1,24 @@
+Atena 0.4.3 Windows Port - validation report
+============================================
+
+Shared Core/SDK/IPC build validation on Linux host:
+  test_core          PASS
+  test_persistence   PASS
+  test_rag           PASS
+  test_ipc_sdk       PASS
+  test_tools         PASS
+  test_protocol      PASS
+  Total: 6/6 PASS
+
+Static Win32 integration gates present:
+  - CreateNamedPipeA server
+  - WaitNamedPipeA/CreateFileA client
+  - CreateProcessW Core auto-start
+  - Windows Credential Manager (CredWriteW/CredReadW)
+  - user SID-scoped named pipe
+  - shared IPC dispatcher for provider/model/chat methods
+  - Windows .ico resource
+  - MSVC/vcpkg/Qt build scripts
+  - NSIS installer script
+
+Important: final PE/Qt binaries must be compiled on Windows/MSVC or a Windows CI runner.

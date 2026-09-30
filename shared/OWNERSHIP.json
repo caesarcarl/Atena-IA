@@ -1,0 +1,98 @@
+{
+  "version": "atena.ownership/1",
+  "notes": "Caminhos relativos ao repositório Atena, não ao kit. Exclusões prevalecem. Mudanças fora do escopo exigem revisão coordenada; não desabilitar o verificador.",
+  "modules": {
+    "core": {
+      "prefixes": [
+        "core/",
+        "providers/",
+        "memory/",
+        "rag/",
+        "agent/",
+        "model/",
+        "auth/",
+        "identity/",
+        "prompts/",
+        "schemas/",
+        "ipc/",
+        "services/",
+        "sdk/",
+        "include/atena/",
+        "tests/core/",
+        "tests/contract/",
+        "docs/core/",
+        "docs/providers/",
+        "docs/sdk/"
+      ],
+      "files": [
+        "tools/registry.c"
+      ],
+      "patterns": [
+        "tests/test_*.c",
+        "tests/fuzz_*.c"
+      ],
+      "exclude": [
+        "include/atena/platform.h",
+        "include/atena/platform/**",
+        "include/atena/hardware.h"
+      ]
+    },
+    "cli": {
+      "prefixes": [
+        "cli/",
+        "tests/cli/",
+        "docs/cli/"
+      ],
+      "files": [],
+      "patterns": [],
+      "exclude": []
+    },
+    "ui": {
+      "prefixes": [
+        "ui/",
+        "tests/ui/",
+        "docs/ui/"
+      ],
+      "files": [],
+      "patterns": [],
+      "exclude": []
+    },
+    "platform": {
+      "prefixes": [
+        "platform/",
+        "hardware/",
+        "include/atena/platform/",
+        "packaging/",
+        "scripts/",
+        "cmake/",
+        "licenses/",
+        "tests/platform/",
+        "tests/packaging/",
+        "docs/platform/",
+        "docs/packaging/",
+        ".github/workflows/"
+      ],
+      "files": [
+        "include/atena/platform.h",
+        "include/atena/hardware.h",
+        "CMakeLists.txt",
+        "CMakePresets.json",
+        "tests/CMakeLists.txt",
+        "README.md",
+        "vcpkg.json",
+        "vcpkg-configuration.json",
+        "conanfile.py",
+        "conanfile.txt",
+        "conan.lock",
+        "tools/system_info.c",
+        "tools/file_metadata.c",
+        "tools/brightness.c",
+        "tools/brightness_helper.c",
+        "THIRD-PARTY-NOTICES.md"
+      ],
+      "patterns": [],
+      "exclude": []
+    }
+  }
+}
+

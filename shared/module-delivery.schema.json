@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:atena:module-delivery:1",
+  "title": "Atena module delivery",
+  "type": "object",
+  "properties": {
+    "delivery_schema": {
+      "const": "atena.module-delivery/1"
+    },
+    "module": {
+      "enum": [
+        "core",
+        "cli",
+        "ui",
+        "platform"
+      ]
+    },
+    "phase": {
+      "enum": [
+        "implementation",
+        "foundation",
+        "distribution"
+      ]
+    },
+    "baseline_label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline_archive_sha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "baseline_commit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contract_version": {
+      "const": "atena.integration/1.0"
+    },
+    "contract_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sdk_header_sha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "change": {
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          },
+          "before_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "after_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path",
+          "change",
+          "before_sha256",
+          "after_sha256",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "not_run",
+              "blocked"
+            ]
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "command",
+          "environment",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "delivery_schema",
+    "module",
+    "phase",
+    "baseline_label",
+    "baseline_archive_sha256",
+    "baseline_commit",
+    "contract_version",
+    "contract_sha256",
+    "sdk_header_sha256",
+    "files",
+    "tests"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "module": {
+            "const": "platform"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phase": {
+            "enum": [
+              "foundation",
+              "distribution"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "phase": {
+            "const": "implementation"
+          }
+        }
+      }
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "baseline_archive_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "properties": {
+            "baseline_commit": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

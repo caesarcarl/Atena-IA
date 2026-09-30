@@ -1,0 +1,25 @@
+ATENA IA 0.4.3 - WINDOWS x64
+============================
+
+1) Em um Windows 10/11 x64, extraia este projeto.
+2) Execute PREPARAR-WINDOWS.bat.
+3) Depois execute GERAR-INSTALADOR-WINDOWS.bat.
+
+Saídas esperadas:
+  Atena-Setup-0.4.3-x64.exe
+  dist\Atena-0.4.3-Windows-x64-Portable.zip
+
+O pacote final contém:
+  atena-ui.exe
+  atena-core.exe
+  atena.exe
+  identity\
+  DLLs Qt e dependências runtime
+
+O Core é iniciado automaticamente e conversa com a UI por Windows Named Pipes.
+Chaves de API ficam no Windows Credential Manager.
+
+Providers implementados:
+  Ollama, OpenAI, Groq, DeepSeek, xAI e OpenAI-compatible.
+
+Mais detalhes: README.md e docs\windows\README-WINDOWS.md

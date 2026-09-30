@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Atena
+GenericName=Assistente de IA
+Comment=Assistente local e híbrida do Athenas OS
+Exec=atena-ui
+Icon=atena
+Terminal=false
+Categories=Utility;Education;
+Keywords=IA;AI;Atena;Ollama;Assistente;
+StartupNotify=true
+StartupWMClass=Atena

@@ -1,0 +1,83 @@
+{
+  "protocol": "atena.ipc/2",
+  "events": [
+    {
+      "name": "operation.started",
+      "data": "{status,kind}",
+      "semantics": "Após aceitação; início de job."
+    },
+    {
+      "name": "operation.queued",
+      "data": "{position}",
+      "semantics": "Fila limitada."
+    },
+    {
+      "name": "operation.progress",
+      "data": "{stage,completed_bytes?,total_bytes?,message?}",
+      "semantics": "Total desconhecido é null/ausente; não inventar porcentagem."
+    },
+    {
+      "name": "chat.delta",
+      "data": "{session_id,text}",
+      "semantics": "Delta de resposta visível; UTF-8 válido."
+    },
+    {
+      "name": "chat.citations",
+      "data": "{session_id,items:[{document_id,chunk_id,title,location,content_sha256}]}",
+      "semantics": "Somente IDs de evidência realmente usada/validada."
+    },
+    {
+      "name": "tool.proposed",
+      "data": "{tool_call_id,tool_name,arguments,summary}",
+      "semantics": "Proposta ainda não executada; dados não confiáveis."
+    },
+    {
+      "name": "tool.confirmation_required",
+      "data": "{confirmation_id,tool_call_id,tool_name,arguments,resources,summary,expires_at}",
+      "semantics": "Argumentos normalizados, usuário/operação e hash vinculados no servidor."
+    },
+    {
+      "name": "tool.result",
+      "data": "{tool_call_id,status,result,error}",
+      "semantics": "Resultado real ou erro; sem segredo."
+    },
+    {
+      "name": "operation.warning",
+      "data": "{code,message}",
+      "semantics": "Aviso não terminal, sem mascarar erro terminal."
+    },
+    {
+      "name": "operation.finished",
+      "data": "{status,result,error}",
+      "semantics": "Único terminal; status completed/cancelled/failed/interrupted. error null só no sucesso. Resultado chat: session_id, assistant_message_id, text, citations[], provider_id, model, usage{}, timings{}; outros jobs retornam dados da operação."
+    }
+  ],
+  "error_codes": [
+    "INVALID_ARGUMENT",
+    "PROTOCOL_MISMATCH",
+    "NOT_CONFIGURED",
+    "NOT_FOUND",
+    "FEATURE_UNAVAILABLE",
+    "AUTH_REQUIRED",
+    "AUTH_FAILED",
+    "KEYRING_LOCKED",
+    "PERMISSION_DENIED",
+    "CONFIRMATION_REQUIRED",
+    "CONFIRMATION_EXPIRED",
+    "CANCELLED",
+    "TIMEOUT",
+    "NETWORK_ERROR",
+    "RATE_LIMITED",
+    "MODEL_NOT_FOUND",
+    "CONTEXT_TOO_LARGE",
+    "INSUFFICIENT_RESOURCES",
+    "DATABASE_ERROR",
+    "SCHEMA_TOO_NEW",
+    "PROVIDER_ERROR",
+    "REPLAY_UNAVAILABLE",
+    "IDEMPOTENCY_CONFLICT",
+    "BUSY",
+    "INTERNAL_ERROR"
+  ]
+}
+

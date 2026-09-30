@@ -1,0 +1,83 @@
+#!/bin/sh
+set -eu
+SRC=/usr/lib/atena/source
+BUILD=/var/lib/atena/build-0.5.4
+STAGE=/var/lib/atena/stage-0.5.4
+LOG=/var/log/atena-install.log
+CORE=/usr/libexec/atena/atena-core
+UI=/usr/libexec/atena/atena-ui-bin
+CLI=/usr/bin/atena
+
+mkdir -p /var/lib/atena /usr/libexec/atena
+rm -rf "$BUILD" "$STAGE"
+mkdir -p "$BUILD" "$STAGE"
+
+# Machines with ~4 GiB RAM are safer with one compiler process; larger machines use two.
+JOBS="${ATENA_JOBS:-}"
+if [ -z "$JOBS" ]; then
+    MEM_KB=$(awk '/MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+    if [ "${MEM_KB:-0}" -lt 6000000 ]; then JOBS=1; else JOBS=2; fi
+fi
+
+{
+  echo "=== Atena 0.5.4 postinst $(date -Iseconds) ==="
+  echo "source=$SRC"
+  echo "jobs=$JOBS"
+
+  test -f "$SRC/CMakeLists.txt"
+  test -f "$SRC/services/main.c"
+  test -f "$SRC/ui/qt/CMakeLists.txt"
+  test -r /usr/share/atena/identity/persona.json
+
+  cmake -S "$SRC" -B "$BUILD" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DATENA_PACKAGE_REVISION=0.5.4 \
+    -DATENA_BUILD_UI=ON \
+    -DATENA_REQUIRE_UI=ON \
+    -DATENA_BUILD_TESTS=OFF
+
+  cmake --build "$BUILD" -j"$JOBS" --target atena atena-core atena-ui
+
+  # Atomic-ish validation: do not replace any installed executable until all three exist.
+  test -x "$BUILD/atena"
+  test -x "$BUILD/atena-core"
+  test -x "$BUILD/ui/qt/atena-ui"
+
+  install -m 0755 "$BUILD/atena" "$STAGE/atena"
+  install -m 0755 "$BUILD/atena-core" "$STAGE/atena-core"
+  install -m 0755 "$BUILD/ui/qt/atena-ui" "$STAGE/atena-ui-bin"
+
+  # Install Core first. The package-owned /usr/bin/atena-ui launcher will refuse
+  # to start if either Core or UI binary is missing.
+  install -m 0755 "$STAGE/atena-core" "$CORE"
+  install -m 0755 "$STAGE/atena" "$CLI"
+  install -m 0755 "$STAGE/atena-ui-bin" "$UI"
+
+  test -x "$CORE"
+  test -x "$CLI"
+  test -x "$UI"
+  test -x /usr/bin/atena-ui
+
+  echo "core=$CORE"
+  echo "ui=$UI"
+  echo "cli=$CLI"
+  echo "Atena 0.5.4 instalada com Core integrado."
+} >>"$LOG" 2>&1 || {
+  echo "Falha ao compilar/instalar a Atena. A instalação NÃO foi concluída." >&2
+  echo "Consulte: $LOG" >&2
+  tail -n 120 "$LOG" >&2 || true
+  exit 1
+}
+
+rm -rf "$STAGE"
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+  gtk-update-icon-cache -q /usr/share/icons/hicolor >/dev/null 2>&1 || true
+fi
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl daemon-reload >/dev/null 2>&1 || true
+fi
+exit 0

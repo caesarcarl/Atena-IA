@@ -1,0 +1,760 @@
+Atena-0.4.3-Completo-Robusto
+├── arquitetura-atena
+│   ├── arquitetura0.5
+│   ├── "CxPython"
+│   └── fluxo1
+├── atena-fix-db-legacy-session-id.patch
+├── build-dev
+│   ├── atena
+│   ├── atena-core
+│   ├── atena-core.service
+│   ├── CMakeCache.txt
+│   ├── CMakeFiles
+│   │   ├── 3.28.3
+│   │   │   ├── CMakeCCompiler.cmake
+│   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   ├── CMakeSystem.cmake
+│   │   │   ├── CompilerIdC
+│   │   │   │   ├── a.out
+│   │   │   │   ├── CMakeCCompilerId.c
+│   │   │   │   └── tmp
+│   │   │   └── CompilerIdCXX
+│   │   │       ├── a.out
+│   │   │       ├── CMakeCXXCompilerId.cpp
+│   │   │       └── tmp
+│   │   ├── atena_client.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── cmake_clean_target.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── sdk
+│   │   │       ├── client.c.o
+│   │   │       └── client.c.o.d
+│   │   ├── atena-core.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── services
+│   │   │       ├── main.c.o
+│   │   │       └── main.c.o.d
+│   │   ├── atena_core.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── cmake_clean_target.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── core
+│   │   │   │   ├── context.c.o
+│   │   │   │   ├── context.c.o.d
+│   │   │   │   ├── core.c.o
+│   │   │   │   ├── core.c.o.d
+│   │   │   │   ├── status.c.o
+│   │   │   │   ├── status.c.o.d
+│   │   │   │   ├── util.c.o
+│   │   │   │   └── util.c.o.d
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── memory
+│   │   │   │   ├── store.c.o
+│   │   │   │   └── store.c.o.d
+│   │   │   ├── progress.make
+│   │   │   ├── providers
+│   │   │   │   ├── mock_provider.c.o
+│   │   │   │   ├── mock_provider.c.o.d
+│   │   │   │   ├── ollama
+│   │   │   │   │   ├── ollama_provider.c.o
+│   │   │   │   │   └── ollama_provider.c.o.d
+│   │   │   │   └── openai_compatible
+│   │   │   │       ├── openai_compatible_provider.c.o
+│   │   │   │       └── openai_compatible_provider.c.o.d
+│   │   │   └── tools
+│   │   │       ├── tools.c.o
+│   │   │       └── tools.c.o.d
+│   │   ├── atena.dir
+│   │   │   ├── build.make
+│   │   │   ├── cli
+│   │   │   │   ├── main.c.o
+│   │   │   │   └── main.c.o.d
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   └── progress.make
+│   │   ├── atena_ipc_server.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── cmake_clean_target.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── ipc
+│   │   │   │   ├── server.c.o
+│   │   │   │   ├── server.c.o.d
+│   │   │   │   ├── server_dispatch.c.o
+│   │   │   │   └── server_dispatch.c.o.d
+│   │   │   ├── link.txt
+│   │   │   └── progress.make
+│   │   ├── atena_platform.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── cmake_clean_target.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── platform
+│   │   │   │   ├── paths.c.o
+│   │   │   │   ├── paths.c.o.d
+│   │   │   │   ├── process.c.o
+│   │   │   │   ├── process.c.o.d
+│   │   │   │   ├── secrets.c.o
+│   │   │   │   ├── secrets.c.o.d
+│   │   │   │   ├── sync.c.o
+│   │   │   │   ├── sync.c.o.d
+│   │   │   │   ├── transport_unix.c.o
+│   │   │   │   ├── transport_unix.c.o.d
+│   │   │   │   ├── transport_win32.c.o
+│   │   │   │   └── transport_win32.c.o.d
+│   │   │   └── progress.make
+│   │   ├── atena_protocol.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── cmake_clean_target.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── core
+│   │   │   │   ├── status.c.o
+│   │   │   │   ├── status.c.o.d
+│   │   │   │   ├── util.c.o
+│   │   │   │   └── util.c.o.d
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── ipc
+│   │   │   │   ├── protocol.c.o
+│   │   │   │   └── protocol.c.o.d
+│   │   │   ├── link.txt
+│   │   │   └── progress.make
+│   │   ├── CheckCXX
+│   │   │   ├── CMakeCache.txt
+│   │   │   ├── CMakeFiles
+│   │   │   │   ├── 3.28.3
+│   │   │   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   │   │   ├── CMakeSystem.cmake
+│   │   │   │   │   └── CompilerIdCXX
+│   │   │   │   │       ├── a.out
+│   │   │   │   │       ├── CMakeCXXCompilerId.cpp
+│   │   │   │   │       └── tmp
+│   │   │   │   ├── cmake.check_cache
+│   │   │   │   ├── CMakeConfigureLog.yaml
+│   │   │   │   ├── CMakeDirectoryInformation.cmake
+│   │   │   │   ├── CMakeScratch
+│   │   │   │   ├── Makefile2
+│   │   │   │   ├── Makefile.cmake
+│   │   │   │   ├── pkgRedirects
+│   │   │   │   ├── progress.marks
+│   │   │   │   └── TargetDirectories.txt
+│   │   │   ├── cmake_install.cmake
+│   │   │   ├── CMakeLists.txt
+│   │   │   ├── Makefile
+│   │   │   └── result.cmake
+│   │   ├── cmake.check_cache
+│   │   ├── CMakeConfigureLog.yaml
+│   │   ├── CMakeDirectoryInformation.cmake
+│   │   ├── CMakeRuleHashes.txt
+│   │   ├── Makefile2
+│   │   ├── Makefile.cmake
+│   │   ├── pkgRedirects
+│   │   ├── progress.marks
+│   │   ├── TargetDirectories.txt
+│   │   ├── test_core.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_core.c.o
+│   │   │       └── test_core.c.o.d
+│   │   ├── test_ipc_sdk.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_ipc_sdk.c.o
+│   │   │       └── test_ipc_sdk.c.o.d
+│   │   ├── test_migration_legacy.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_migration_legacy.c.o
+│   │   │       └── test_migration_legacy.c.o.d
+│   │   ├── test_persistence.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_persistence.c.o
+│   │   │       └── test_persistence.c.o.d
+│   │   ├── test_protocol.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_protocol.c.o
+│   │   │       └── test_protocol.c.o.d
+│   │   ├── test_rag.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.internal
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── tests
+│   │   │       ├── test_rag.c.o
+│   │   │       └── test_rag.c.o.d
+│   │   └── test_tools.dir
+│   │       ├── build.make
+│   │       ├── cmake_clean.cmake
+│   │       ├── compiler_depend.internal
+│   │       ├── compiler_depend.make
+│   │       ├── compiler_depend.ts
+│   │       ├── DependInfo.cmake
+│   │       ├── depend.make
+│   │       ├── flags.make
+│   │       ├── link.txt
+│   │       ├── progress.make
+│   │       └── tests
+│   │           ├── test_tools.c.o
+│   │           └── test_tools.c.o.d
+│   ├── cmake_install.cmake
+│   ├── CPackConfig.cmake
+│   ├── CPackSourceConfig.cmake
+│   ├── CTestTestfile.cmake
+│   ├── identity
+│   │   ├── pedagogy.json
+│   │   ├── persona.json
+│   │   └── regional.json
+│   ├── libatena_client.a
+│   ├── libatena_core.a
+│   ├── libatena_ipc_server.a
+│   ├── libatena_platform.a
+│   ├── libatena_protocol.a
+│   ├── Makefile
+│   ├── .qt
+│   │   └── QtDeploySupport.cmake
+│   ├── test_core
+│   ├── Testing
+│   │   └── Temporary
+│   │       ├── CTestCostData.txt
+│   │       └── LastTest.log
+│   ├── test_ipc_sdk
+│   ├── test_migration_legacy
+│   ├── test_persistence
+│   ├── test_protocol
+│   ├── test_rag
+│   ├── test_tools
+│   └── ui
+│       └── qt
+│           ├── atena-core
+│           ├── atena-ui
+│           ├── atena-ui_autogen
+│           │   ├── deps
+│           │   ├── include
+│           │   ├── moc_predefs.h
+│           │   ├── mocs_compilation.cpp
+│           │   └── timestamp
+│           ├── atena-ui-lib_autogen
+│           │   ├── 2MJGWJB4P3
+│           │   │   ├── moc_AtenaClientFacade.cpp
+│           │   │   ├── moc_AtenaClientFacade.cpp.d
+│           │   │   ├── moc_RealAtenaClient.cpp
+│           │   │   └── moc_RealAtenaClient.cpp.d
+│           │   ├── 3YJK5W5UP7
+│           │   │   └── qrc_atena.cpp
+│           │   ├── deps
+│           │   ├── include
+│           │   ├── moc_predefs.h
+│           │   ├── mocs_compilation.cpp
+│           │   ├── RGRURCYE3Z
+│           │   │   ├── moc_OnboardingDialog.cpp
+│           │   │   ├── moc_OnboardingDialog.cpp.d
+│           │   │   ├── moc_ProviderSetupDialog.cpp
+│           │   │   ├── moc_ProviderSetupDialog.cpp.d
+│           │   │   ├── moc_ToolConfirmationDialog.cpp
+│           │   │   └── moc_ToolConfirmationDialog.cpp.d
+│           │   ├── RZ4CM6YYJ6
+│           │   │   ├── moc_ChatComposer.cpp
+│           │   │   ├── moc_ChatComposer.cpp.d
+│           │   │   ├── moc_MessageBubble.cpp
+│           │   │   ├── moc_MessageBubble.cpp.d
+│           │   │   ├── moc_NavButton.cpp
+│           │   │   ├── moc_NavButton.cpp.d
+│           │   │   ├── moc_StatusChip.cpp
+│           │   │   └── moc_StatusChip.cpp.d
+│           │   ├── timestamp
+│           │   ├── UVLADIE3JM
+│           │   │   ├── moc_Application.cpp
+│           │   │   ├── moc_Application.cpp.d
+│           │   │   ├── moc_MainWindow.cpp
+│           │   │   └── moc_MainWindow.cpp.d
+│           │   ├── V5LNE4NMWJ
+│           │   │   ├── moc_ChatPage.cpp
+│           │   │   ├── moc_ChatPage.cpp.d
+│           │   │   ├── moc_DiagnosticsPage.cpp
+│           │   │   ├── moc_DiagnosticsPage.cpp.d
+│           │   │   ├── moc_HomePage.cpp
+│           │   │   ├── moc_HomePage.cpp.d
+│           │   │   ├── moc_KnowledgePage.cpp
+│           │   │   ├── moc_KnowledgePage.cpp.d
+│           │   │   ├── moc_ModelsPage.cpp
+│           │   │   ├── moc_ModelsPage.cpp.d
+│           │   │   ├── moc_PrivacyPage.cpp
+│           │   │   ├── moc_PrivacyPage.cpp.d
+│           │   │   ├── moc_ProvidersPage.cpp
+│           │   │   ├── moc_ProvidersPage.cpp.d
+│           │   │   ├── moc_SettingsPage.cpp
+│           │   │   ├── moc_SettingsPage.cpp.d
+│           │   │   ├── moc_ToolsPage.cpp
+│           │   │   └── moc_ToolsPage.cpp.d
+│           │   └── YLADOPUWMF
+│           │       ├── moc_ThemeManager.cpp
+│           │       └── moc_ThemeManager.cpp.d
+│           ├── CMakeFiles
+│           │   ├── atena-ui_autogen.dir
+│           │   │   ├── AutogenInfo.json
+│           │   │   ├── AutogenUsed.txt
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── compiler_depend.internal
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   ├── ParseCache.txt
+│           │   │   └── progress.make
+│           │   ├── atena-ui_autogen_timestamp_deps.dir
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   └── progress.make
+│           │   ├── atena-ui.dir
+│           │   │   ├── atena-ui_autogen
+│           │   │   │   ├── mocs_compilation.cpp.o
+│           │   │   │   └── mocs_compilation.cpp.o.d
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── compiler_depend.internal
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   ├── depend.make
+│           │   │   ├── flags.make
+│           │   │   ├── link.txt
+│           │   │   ├── progress.make
+│           │   │   └── src
+│           │   │       ├── main.cpp.o
+│           │   │       └── main.cpp.o.d
+│           │   ├── atena-ui-lib_autogen.dir
+│           │   │   ├── AutogenInfo.json
+│           │   │   ├── AutogenUsed.txt
+│           │   │   ├── AutoRcc_atena_3YJK5W5UP7_Info.json
+│           │   │   ├── AutoRcc_atena_3YJK5W5UP7_Lock.lock
+│           │   │   ├── AutoRcc_atena_3YJK5W5UP7_Used.txt
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── compiler_depend.internal
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   ├── ParseCache.txt
+│           │   │   └── progress.make
+│           │   ├── atena-ui-lib_autogen_timestamp_deps.dir
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   └── progress.make
+│           │   ├── atena-ui-lib.dir
+│           │   │   ├── atena-ui-lib_autogen
+│           │   │   │   ├── 3YJK5W5UP7
+│           │   │   │   │   ├── qrc_atena.cpp.o
+│           │   │   │   │   └── qrc_atena.cpp.o.d
+│           │   │   │   ├── mocs_compilation.cpp.o
+│           │   │   │   └── mocs_compilation.cpp.o.d
+│           │   │   ├── build.make
+│           │   │   ├── cmake_clean.cmake
+│           │   │   ├── cmake_clean_target.cmake
+│           │   │   ├── compiler_depend.internal
+│           │   │   ├── compiler_depend.make
+│           │   │   ├── compiler_depend.ts
+│           │   │   ├── DependInfo.cmake
+│           │   │   ├── depend.make
+│           │   │   ├── flags.make
+│           │   │   ├── link.txt
+│           │   │   ├── progress.make
+│           │   │   └── src
+│           │   │       ├── Application.cpp.o
+│           │   │       ├── Application.cpp.o.d
+│           │   │       ├── AssetCatalog.cpp.o
+│           │   │       ├── AssetCatalog.cpp.o.d
+│           │   │       ├── client
+│           │   │       │   ├── RealAtenaClient.cpp.o
+│           │   │       │   └── RealAtenaClient.cpp.o.d
+│           │   │       ├── dialogs
+│           │   │       │   ├── OnboardingDialog.cpp.o
+│           │   │       │   ├── OnboardingDialog.cpp.o.d
+│           │   │       │   ├── ProviderSetupDialog.cpp.o
+│           │   │       │   ├── ProviderSetupDialog.cpp.o.d
+│           │   │       │   ├── ToolConfirmationDialog.cpp.o
+│           │   │       │   └── ToolConfirmationDialog.cpp.o.d
+│           │   │       ├── MainWindow.cpp.o
+│           │   │       ├── MainWindow.cpp.o.d
+│           │   │       ├── pages
+│           │   │       │   ├── ChatPage.cpp.o
+│           │   │       │   ├── ChatPage.cpp.o.d
+│           │   │       │   ├── DiagnosticsPage.cpp.o
+│           │   │       │   ├── DiagnosticsPage.cpp.o.d
+│           │   │       │   ├── HomePage.cpp.o
+│           │   │       │   ├── HomePage.cpp.o.d
+│           │   │       │   ├── KnowledgePage.cpp.o
+│           │   │       │   ├── KnowledgePage.cpp.o.d
+│           │   │       │   ├── ModelsPage.cpp.o
+│           │   │       │   ├── ModelsPage.cpp.o.d
+│           │   │       │   ├── PrivacyPage.cpp.o
+│           │   │       │   ├── PrivacyPage.cpp.o.d
+│           │   │       │   ├── ProvidersPage.cpp.o
+│           │   │       │   ├── ProvidersPage.cpp.o.d
+│           │   │       │   ├── SettingsPage.cpp.o
+│           │   │       │   ├── SettingsPage.cpp.o.d
+│           │   │       │   ├── ToolsPage.cpp.o
+│           │   │       │   └── ToolsPage.cpp.o.d
+│           │   │       ├── theme
+│           │   │       │   ├── ThemeManager.cpp.o
+│           │   │       │   └── ThemeManager.cpp.o.d
+│           │   │       └── widgets
+│           │   │           ├── ChatComposer.cpp.o
+│           │   │           ├── ChatComposer.cpp.o.d
+│           │   │           ├── MessageBubble.cpp.o
+│           │   │           ├── MessageBubble.cpp.o.d
+│           │   │           ├── NavButton.cpp.o
+│           │   │           ├── NavButton.cpp.o.d
+│           │   │           ├── StatusChip.cpp.o
+│           │   │           └── StatusChip.cpp.o.d
+│           │   ├── CMakeDirectoryInformation.cmake
+│           │   └── progress.marks
+│           ├── cmake_install.cmake
+│           ├── identity
+│           │   ├── pedagogy.json
+│           │   ├── persona.json
+│           │   └── regional.json
+│           ├── libatena-ui-lib.a
+│           └── Makefile
+├── CHANGES-0.4.2.md
+├── CHANGES-ASSETS-v2.md
+├── cli
+│   └── main.c
+├── CMakeLists.txt
+├── CMakeLists.txt.orig
+├── CMakePresets.json
+├── COMPILAR-WINDOWS.bat
+├── core
+│   ├── context.c
+│   ├── context.h
+│   ├── core.c
+│   ├── status.c
+│   ├── util.c
+│   └── util.h
+├── DELIVERY.json
+├── docs
+│   ├── audit
+│   ├── contracts
+│   ├── providers
+│   ├── reference
+│   │   └── CORE_SPECIFICATION_REFERENCE.txt
+│   └── windows
+│       └── README-WINDOWS.md
+├── GERAR-ATHENAS-WINDOWS-COMPLETO.bat
+├── GERAR-INSTALADOR-WINDOWS.bat
+├── .github
+│   └── workflows
+│       └── windows-x64.yml
+├── .gitignore
+├── identity
+│   ├── pedagogy.json
+│   ├── persona.json
+│   └── regional.json
+├── include
+│   └── atena
+│       ├── client.h
+│       ├── core.h
+│       ├── ipc.h
+│       ├── path.h
+│       ├── platform.h
+│       ├── provider.h
+│       ├── secret.h
+│       ├── status.h
+│       ├── sync.h
+│       └── types.h
+├── ipc
+│   ├── protocol.c
+│   ├── protocol.h
+│   ├── server.c
+│   ├── server_dispatch.c
+│   ├── server_dispatch.h
+│   └── server_win32.c
+├── LEIA-PRIMEIRO-WINDOWS.txt
+├── memory
+│   ├── store.c
+│   └── store.h
+├── packaging
+│   ├── debian
+│   │   ├── build-deb.sh
+│   │   ├── control
+│   │   ├── postinst
+│   │   ├── postrm
+│   │   └── prerm
+│   ├── linux
+│   │   ├── atena.desktop
+│   │   └── atena-ui-launcher.sh
+│   ├── systemd
+│   │   └── atena-core.service.in
+│   └── windows
+│       ├── Atena.nsi
+│       └── vcpkg.json
+├── platform
+│   ├── paths.c
+│   ├── process.c
+│   ├── secrets.c
+│   ├── sync.c
+│   ├── transport_unix.c
+│   └── transport_win32.c
+├── PORT-WINDOWS-0.4.3.md
+├── PREPARAR-WINDOWS.bat
+├── providers
+│   ├── mock_provider.c
+│   ├── ollama
+│   │   └── ollama_provider.c
+│   └── openai_compatible
+│       └── openai_compatible_provider.c
+├── README-EDITAR.md
+├── README.md
+├── schemas
+│   └── ipc-envelope.schema.json
+├── scripts
+│   ├── bootstrap-windows.ps1
+│   ├── build-install-linux.sh
+│   ├── build-linux.sh
+│   ├── build-ui-debian.sh
+│   ├── build-windows.ps1
+│   ├── install-debian-ui.sh
+│   ├── install-linux-mint.sh
+│   ├── package-windows.ps1
+│   ├── setup-ollama.sh
+│   ├── verify-0.4.1.sh
+│   ├── verify-installed-linux.sh
+│   └── verify-windows.ps1
+├── sdk
+│   ├── client.c
+│   └── SDK-MANIFEST.json
+├── services
+│   └── main.c
+├── shared
+│   ├── API_METHODS.json
+│   ├── EVENTS.json
+│   ├── ipc-envelope.schema.json
+│   ├── module-delivery.schema.json
+│   ├── OWNERSHIP.json
+│   └── TRACE_CHAT.jsonl
+├── SOURCE-MANIFEST.sha256
+├── TEST-REPORT-0.4.2-3.txt
+├── TEST-REPORT-0.4.2.txt
+├── TEST-REPORT-WINDOWS-PORT.txt
+├── tests
+│   ├── test_common.h
+│   ├── test_core.c
+│   ├── test_ipc_sdk.c
+│   ├── test_migration_legacy.c
+│   ├── test_persistence.c
+│   ├── test_protocol.c
+│   ├── test_rag.c
+│   └── test_tools.c
+├── tools
+│   ├── tools.c
+│   └── tools.h
+├── ui
+│   └── qt
+│       ├── CMakeLists.txt
+│       ├── resources
+│       │   ├── atena.qrc
+│       │   ├── branding
+│       │   │   ├── app-icon
+│       │   │   │   ├── atena-128x128.png
+│       │   │   │   ├── atena-16x16.png
+│       │   │   │   ├── atena-24x24.png
+│       │   │   │   ├── atena-256x256.png
+│       │   │   │   ├── atena-32x32.png
+│       │   │   │   ├── atena-48x48.png
+│       │   │   │   ├── atena-512x512.png
+│       │   │   │   ├── atena-64x64.png
+│       │   │   │   └── atena-96x96.png
+│       │   │   ├── atena-app-icon.png
+│       │   │   └── atena-ia-logo-horizontal.png
+│       │   ├── icons
+│       │   │   ├── navigation
+│       │   │   │   ├── diagnostics.png
+│       │   │   │   ├── files.png
+│       │   │   │   ├── history.png
+│       │   │   │   ├── library.png
+│       │   │   │   ├── models.png
+│       │   │   │   ├── new-conversation.png
+│       │   │   │   ├── privacy.png
+│       │   │   │   ├── projects.png
+│       │   │   │   ├── providers.png
+│       │   │   │   ├── search.png
+│       │   │   │   ├── settings.png
+│       │   │   │   └── tools.png
+│       │   │   ├── quick-actions
+│       │   │   │   ├── add-knowledge.png
+│       │   │   │   ├── mode-cloud.png
+│       │   │   │   ├── mode-hybrid.png
+│       │   │   │   ├── mode-local.png
+│       │   │   │   ├── quick-analyze.png
+│       │   │   │   ├── quick-create.png
+│       │   │   │   ├── quick-search.png
+│       │   │   │   └── quick-study.png
+│       │   │   └── system
+│       │   │       ├── send.svg
+│       │   │       └── stop.svg
+│       │   ├── illustrations
+│       │   │   ├── athena-about-onboarding.png
+│       │   │   ├── home-hero.png
+│       │   │   ├── library-knowledge.png
+│       │   │   └── models-providers.png
+│       │   └── windows
+│       │       ├── atena.ico
+│       │       └── atena.rc.in
+│       └── src
+│           ├── Application.cpp
+│           ├── Application.h
+│           ├── AssetCatalog.cpp
+│           ├── AssetCatalog.h
+│           ├── client
+│           │   ├── AtenaClientFacade.h
+│           │   ├── RealAtenaClient.cpp
+│           │   └── RealAtenaClient.h
+│           ├── dialogs
+│           │   ├── OnboardingDialog.cpp
+│           │   ├── OnboardingDialog.h
+│           │   ├── ProviderSetupDialog.cpp
+│           │   ├── ProviderSetupDialog.h
+│           │   ├── ToolConfirmationDialog.cpp
+│           │   └── ToolConfirmationDialog.h
+│           ├── main.cpp
+│           ├── MainWindow.cpp
+│           ├── MainWindow.h
+│           ├── pages
+│           │   ├── ChatPage.cpp
+│           │   ├── ChatPage.h
+│           │   ├── DiagnosticsPage.cpp
+│           │   ├── DiagnosticsPage.h
+│           │   ├── HomePage.cpp
+│           │   ├── HomePage.h
+│           │   ├── KnowledgePage.cpp
+│           │   ├── KnowledgePage.h
+│           │   ├── ModelsPage.cpp
+│           │   ├── ModelsPage.h
+│           │   ├── PrivacyPage.cpp
+│           │   ├── PrivacyPage.h
+│           │   ├── ProvidersPage.cpp
+│           │   ├── ProvidersPage.h
+│           │   ├── SettingsPage.cpp
+│           │   ├── SettingsPage.h
+│           │   ├── ToolsPage.cpp
+│           │   └── ToolsPage.h
+│           ├── theme
+│           │   ├── ThemeManager.cpp
+│           │   └── ThemeManager.h
+│           └── widgets
+│               ├── ChatComposer.cpp
+│               ├── ChatComposer.h
+│               ├── MessageBubble.cpp
+│               ├── MessageBubble.h
+│               ├── NavButton.cpp
+│               ├── NavButton.h
+│               ├── StatusChip.cpp
+│               └── StatusChip.h
+└── UI-DEVELOPMENT-DEBIAN.md
+
+134 directories, 624 files

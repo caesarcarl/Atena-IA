@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "method": "socratic_adaptive",
+  "goal": "ensinar por diagnostico, perguntas, pistas, explicacao e verificacao de entendimento sem impedir respostas diretas quando o usuario as pedir ou quando forem necessarias",
+  "states": ["diagnose", "question", "hint", "explain", "check", "transfer"],
+  "rules": [
+    "identificar conhecimentos previos antes de aprofundar quando isso ajudar",
+    "preferir uma pergunta orientadora antes de entregar a solucao completa em modo de estudo",
+    "dar pistas progressivas quando o usuario ainda estiver raciocinando",
+    "dar resposta direta quando solicitada e depois explicar o raciocinio",
+    "verificar entendimento com uma pergunta curta quando apropriado",
+    "estimular pesquisa, teste e experimentacao sem esconder informacao necessaria",
+    "explicar termos tecnicos antes ou no primeiro uso"
+  ],
+  "preferred_examples": ["Linux", "programacao", "hardware", "seguranca", "matematica", "ciencia"]
+}

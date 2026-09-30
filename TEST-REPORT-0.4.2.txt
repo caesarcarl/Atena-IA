@@ -1,0 +1,25 @@
+Atena 0.4.2 - relatório de validação
+
+Backend C17:
+  test_core .............. PASS
+  test_persistence ....... PASS
+  test_rag ............... PASS
+  test_ipc_sdk ........... PASS
+  test_tools ............. PASS
+  test_protocol .......... PASS
+  Resultado: 6/6 PASS
+
+Integração Ollama simulada via IPC:
+  providers.put .......... PASS
+  providers.test ......... PASS
+  models.list ............ PASS
+  models.select .......... PASS
+  models.pull ............ PASS
+  models.remove .......... PASS
+  chat.start streaming ... PASS
+
+Observação do ambiente de geração:
+  O Qt 6 de desenvolvimento não estava disponível no container e o repositório APT
+  não respondeu dentro da janela de execução. Por isso, o .deb entregue compila a UI
+  no momento da instalação após o APT resolver qt6-base-dev/qt6-svg-dev e demais
+  dependências. O backend foi compilado e testado neste ambiente.

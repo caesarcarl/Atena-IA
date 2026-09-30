@@ -1,0 +1,8 @@
+{"protocol":"atena.ipc/2","type":"request","id":"req-hello","method":"system.hello","params":{"client_name":"contract-example","client_version":"0.4.0-dev","protocol_minor":0}}
+{"protocol":"atena.ipc/2","type":"response","id":"req-hello","ok":true,"result":{"protocol_minor":0,"core_version":"0.4.0-dev","methods":["system.hello","chat.start","operation.cancel"],"features":{"demo_only":true},"limits":{"max_frame_bytes":1048576}}}
+{"protocol":"atena.ipc/2","type":"request","id":"req-chat","method":"chat.start","params":{"session_id":null,"text":"Olá","provider_id":"mock","model":"deterministic-test","history_mode":"ephemeral","idempotency_key":"test-turn-001","tools":{"mode":"off"},"rag":{"enabled":false}}}
+{"protocol":"atena.ipc/2","type":"response","id":"req-chat","ok":true,"result":{"operation_id":"op-001","status":"accepted","session_id":"sess-001","message_id":"msg-user-001"}}
+{"protocol":"atena.ipc/2","type":"event","operation_id":"op-001","seq":1,"event":"operation.started","data":{"status":"running","kind":"chat"}}
+{"protocol":"atena.ipc/2","type":"event","operation_id":"op-001","seq":2,"event":"chat.delta","data":{"session_id":"sess-001","text":"Olá. Esta é uma fixture de contrato."}}
+{"protocol":"atena.ipc/2","type":"event","operation_id":"op-001","seq":3,"event":"operation.finished","data":{"status":"completed","result":{"session_id":"sess-001","assistant_message_id":"msg-assistant-001","text":"Olá. Esta é uma fixture de contrato.","citations":[],"provider_id":"mock","model":"deterministic-test","usage":{},"timings":{}},"error":null}}
+

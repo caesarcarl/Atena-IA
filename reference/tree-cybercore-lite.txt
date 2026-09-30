@@ -1,0 +1,169 @@
+cybercore-lite
+├── benchmarks
+├── config
+│   └── default.toml
+├── data
+│   ├── cache
+│   │   └── .gitkeep
+│   ├── database
+│   │   └── .gitkeep
+│   ├── documents
+│   │   └── .gitkeep
+│   └── processed
+│       └── .gitkeep
+├── docs
+├── .env.example
+├── examples
+├── .git
+│   ├── branches
+│   ├── COMMIT_EDITMSG
+│   ├── config
+│   ├── description
+│   ├── HEAD
+│   ├── hooks
+│   │   ├── applypatch-msg.sample
+│   │   ├── commit-msg.sample
+│   │   ├── fsmonitor-watchman.sample
+│   │   ├── post-update.sample
+│   │   ├── pre-applypatch.sample
+│   │   ├── pre-commit.sample
+│   │   ├── pre-merge-commit.sample
+│   │   ├── prepare-commit-msg.sample
+│   │   ├── pre-push.sample
+│   │   ├── pre-rebase.sample
+│   │   ├── pre-receive.sample
+│   │   ├── push-to-checkout.sample
+│   │   ├── sendemail-validate.sample
+│   │   └── update.sample
+│   ├── index
+│   ├── info
+│   │   └── exclude
+│   ├── logs
+│   │   ├── HEAD
+│   │   └── refs
+│   │       ├── heads
+│   │       │   └── main
+│   │       └── remotes
+│   │           └── origin
+│   │               └── main
+│   ├── objects
+│   │   ├── 13
+│   │   │   └── f439e4505864f66abfbfb7b66d06bbd1abe709
+│   │   ├── 2c
+│   │   │   └── 41149cc93de970b1e2e0fab88465e094beadfe
+│   │   ├── 2f
+│   │   │   └── be2b0d65604093029f38d1f0bf857eab48cbc7
+│   │   ├── 42
+│   │   │   └── 83da72d8dd688592661511b8528e7c8dfb330e
+│   │   ├── 61
+│   │   │   └── fe77d2e6676913818718b992a97044b551108a
+│   │   ├── 78
+│   │   │   └── 0265ae8c5dc05a81bcb8f8a668ec5fa36ab833
+│   │   ├── 82
+│   │   │   └── 44964298ea95816b3c21d5ef6e870e713df6bb
+│   │   ├── 86
+│   │   │   └── a1e25d8ef5828f54a7097cc343faa2f421ea92
+│   │   ├── 87
+│   │   │   └── cec7a2ef9e52d47429ffe63ea3af2ee08c5634
+│   │   ├── 8a
+│   │   │   ├── 55409a2d0c5f4c2ca1f1c3939bdba856ad2ca0
+│   │   │   └── e44d38c1adbc10900f428f97bdd27caea51270
+│   │   ├── 90
+│   │   │   └── 33ccdfdd3645288e66167684289d204509a62f
+│   │   ├── 95
+│   │   │   └── f1df5e52ecb0054ee2068f93adaa0553d84578
+│   │   ├── 9c
+│   │   │   └── a9eeeac6ed7a3319436e559daa45d0a95c8675
+│   │   ├── a2
+│   │   │   └── 6ccc3ba14722a67c0e014f36e0c3b314d9bd43
+│   │   ├── a4
+│   │   │   └── 44c4e3d969a4f2c713b60107164518329bf436
+│   │   ├── aa
+│   │   │   └── 86651f88eb24428fd59854e50c1d17d078d832
+│   │   ├── b4
+│   │   │   └── f8216593acade89fc0721870d06f1e0434169e
+│   │   ├── b7
+│   │   │   └── 5d0dfd9c99d638e00b53322a2a26df7decaa8e
+│   │   ├── c9
+│   │   │   ├── 687a2a998bb7be7cd18109f6aedd5b006f96d7
+│   │   │   └── a0fcd9b29457e7273f241651a2dc1e3dc763c9
+│   │   ├── cb
+│   │   │   └── db11f3b5b70d2e003e33f1cac0714328632386
+│   │   ├── d0
+│   │   │   └── ea4b4004a98820f0a97472252e9780be8d2d35
+│   │   ├── d5
+│   │   │   └── 64d0bc3dd917926892c55e3706cc116d5b165e
+│   │   ├── d7
+│   │   │   └── fe48f8c634fc7536f62b4aaff00fcab257bb33
+│   │   ├── d8
+│   │   │   ├── 294c4d5ce571839407e0af6e9bb5b04d4b6636
+│   │   │   └── 42de84558499e608e42dc820dfde7780b2656a
+│   │   ├── d9
+│   │   │   └── c60a409bd6f14384c62cf373fc7a7a4445d71d
+│   │   ├── dd
+│   │   │   └── 827d9543e118c73d5769e78861ed9a81c2954f
+│   │   ├── e2
+│   │   │   └── b9c7308af3d3a86cd95fe2278196de130d7cd8
+│   │   ├── e3
+│   │   │   └── b336b3555959f2e743cc2935d3078d37e31540
+│   │   ├── e6
+│   │   │   └── 9de29bb2d1d6434b8b29ae775ad8c2e48c5391
+│   │   ├── e7
+│   │   │   └── 93a3dc63d5e25cccea57c8882a4854091772df
+│   │   ├── e9
+│   │   │   └── 5c3211ca049738960d6f3c96596e6356676984
+│   │   ├── info
+│   │   └── pack
+│   └── refs
+│       ├── heads
+│       │   └── main
+│       ├── remotes
+│       │   └── origin
+│       │       └── main
+│       └── tags
+├── .gitignore
+├── pyproject.toml
+├── README.md
+├── scripts
+├── src
+│   └── cybercore
+│       ├── api
+│       ├── cli
+│       │   ├── __init__.py
+│       │   ├── main.py
+│       │   └── __pycache__
+│       │       ├── __init__.cpython-312.pyc
+│       │       └── main.cpython-312.pyc
+│       ├── core
+│       │   ├── engine.py
+│       │   ├── prompts.py
+│       │   ├── __pycache__
+│       │   │   ├── engine.cpython-312.pyc
+│       │   │   ├── prompts.cpython-312.pyc
+│       │   │   └── resources.cpython-312.pyc
+│       │   └── resources.py
+│       ├── __init__.py
+│       ├── llm
+│       │   ├── __init__.py
+│       │   ├── manager.py
+│       │   ├── ollama.py
+│       │   ├── __pycache__
+│       │   │   ├── __init__.cpython-312.pyc
+│       │   │   ├── manager.cpython-312.pyc
+│       │   │   ├── ollama.cpython-312.pyc
+│       │   │   └── types.cpython-312.pyc
+│       │   └── types.py
+│       ├── __main__.py
+│       ├── memory
+│       ├── __pycache__
+│       │   ├── __init__.cpython-312.pyc
+│       │   └── __main__.cpython-312.pyc
+│       ├── rag
+│       ├── search
+│       ├── security
+│       └── tools
+└── tests
+    ├── integration
+    └── unit
+
+77 directories, 90 files

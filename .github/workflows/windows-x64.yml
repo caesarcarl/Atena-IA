@@ -1,0 +1,41 @@
+name: build-windows-x64
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install NSIS
+        shell: powershell
+        run: choco install nsis -y --no-progress
+
+      - name: Build and package Atena
+        shell: powershell
+        run: .\scripts\package-windows.ps1
+
+      - name: Validate package
+        shell: powershell
+        run: .\scripts\verify-windows.ps1 -Stage .\dist\Atena-0.4.3-Windows-x64
+
+      - name: Upload portable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Atena-0.4.3-Windows-x64-Portable
+          path: dist/Atena-0.4.3-Windows-x64-Portable.zip
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Atena-Setup-0.4.3-x64
+          path: Atena-Setup-0.4.3-x64.exe

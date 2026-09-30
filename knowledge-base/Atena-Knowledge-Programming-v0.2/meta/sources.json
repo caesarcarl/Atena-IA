@@ -1,0 +1,40 @@
+{
+  "version": "0.2",
+  "books": [
+    {
+      "filename": "01_Logica_de_Programacao_IFFluminense.pdf",
+      "title": "Apostila - Curso de Logica de Programacao",
+      "url": "https://educapes.capes.gov.br/bitstream/capes/560827/2/Apostila%20-%20Curso%20de%20L%C3%B3gica%20de%20Programa%C3%A7%C3%A3o.pdf",
+      "source_page": "https://educapes.capes.gov.br/handle/capes/560827",
+      "license": "Creative Commons Attribution-NonCommercial (eduCAPES metadata; PDF states CC BY-NC)"
+    },
+    {
+      "filename": "02_Python_para_Todos_PT-BR.pdf",
+      "title": "Python para Todos: Explorando Dados com Python 3",
+      "url": "https://do1.dr-chuck.com/pythonlearn/PT_br/pythonlearn.pdf",
+      "source_page": "https://www.py4e.com/book",
+      "license": "CC BY-NC-SA 3.0 (stated in PT-BR PDF)"
+    },
+    {
+      "filename": "03_Linguagem_C_Exercicios_Resolvidos.pdf",
+      "title": "Linguagem C: aprendendo com exercicios resolvidos",
+      "url": "https://repositorio.unb.br/bitstream/10482/25306/3/LIVRO_LinguagemCAprendendoExerciciosResolvidos.pdf",
+      "source_page": "https://repositorio.unb.br/handle/10482/25306",
+      "license": "CC BY-NC-ND 4.0"
+    },
+    {
+      "filename": "04_Think_CPP_Allen_Downey.pdf",
+      "title": "Think C++",
+      "url": "https://www.greenteapress.com/thinkcpp/thinkCScpp.pdf",
+      "source_page": "https://greenteapress.com/wp/think-c/",
+      "license": "CC BY-NC-SA 4.0"
+    },
+    {
+      "filename": "05_Algorithms_Jeff_Erickson.pdf",
+      "title": "Algorithms",
+      "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/book/Algorithms-JeffE.pdf",
+      "source_page": "https://jeffe.cs.illinois.edu/teaching/algorithms/",
+      "license": "CC BY 4.0"
+    }
+  ]
+}

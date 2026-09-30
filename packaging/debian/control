@@ -1,0 +1,15 @@
+Package: atena
+Version: 0.5.4
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Projeto Athenas OS
+Depends: cmake (>= 3.25), build-essential, pkg-config, qt6-base-dev (>= 6.4), qt6-svg-dev, libsqlite3-dev, libjson-c-dev, libcurl4-openssl-dev, libssl-dev, libsecret-1-dev, ca-certificates, python3, poppler-utils
+Suggests: ollama
+Description: Atena IA - Core C/C++, RAG local, worker Python desktop e interface Qt 6
+ Pacote integrado da Atena. O código-fonte do Core, CLI e UI está dentro
+ do próprio .deb e é compilado no computador de destino para manter
+ compatibilidade entre Debian 12/13, Ubuntu 24.04 e Linux Mint 22 amd64.
+ O Core é instalado obrigatoriamente em /usr/libexec/atena/atena-core.
+ A UI usa um launcher que fixa o caminho do Core e da identidade.
+ Providers: Ollama e OpenAI-compatible (OpenAI/Groq/DeepSeek/xAI presets).

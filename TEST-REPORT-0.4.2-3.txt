@@ -1,0 +1,48 @@
+Atena 0.4.2 / Debian revision 0.4.2-3
+Test report - 2026-09-04
+
+1. Fresh backend build
+   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DATENA_BUILD_UI=OFF -DATENA_BUILD_TESTS=ON
+   cmake --build build -j2
+   RESULT: PASS
+
+2. CTest
+   test_core          PASS
+   test_persistence   PASS
+   test_rag           PASS
+   test_ipc_sdk       PASS
+   test_tools         PASS
+   test_protocol      PASS
+   RESULT: 6/6 PASS
+
+3. Installed-layout Core autospawn simulation
+   Core path: /usr/libexec/atena/atena-core (simulated root)
+   Identity:  /usr/share/atena/identity (simulated root)
+   Flow: CLI/SDK -> spawn Core -> system.hello -> Ollama fake server -> POST /api/chat -> streaming
+   Response: AUTO SPAWN OK
+   RESULT: PASS
+
+4. OpenAI-compatible provider integration
+   Flow: providers.put -> providers.test -> sessions.create -> chat.start
+   Fake API received:
+     GET /v1/models
+     POST /v1/chat/completions
+   Streamed response: API OK
+   RESULT: PASS
+
+5. Qt UI runtime
+   Qt 6 development SDK is not installed in this build environment, so the Qt executable was not compiled here.
+   The Debian package declares qt6-base-dev and qt6-svg-dev and configures CMake with ATENA_REQUIRE_UI=ON.
+   Therefore package installation fails explicitly rather than leaving a UI-only/partial installation if Qt cannot be built.
+
+6. Packaging invariant
+   The .deb carries the complete source tree.
+   postinst builds all three targets before replacing installed executables:
+     atena
+     atena-core
+     atena-ui
+   Final installed paths:
+     /usr/bin/atena
+     /usr/libexec/atena/atena-core
+     /usr/bin/atena-ui            (launcher)
+     /usr/libexec/atena/atena-ui-bin

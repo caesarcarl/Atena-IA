@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:atena:ipc:2:envelope",
+  "title": "Atena IPC v2 envelope",
+  "description": "Framing binário validado fora deste schema. Validar params também contra API_METHODS.json e regras de domínio.",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "atena.ipc/2"
+        },
+        "type": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "system.hello",
+            "system.status",
+            "system.doctor",
+            "config.get",
+            "config.update",
+            "identity.get",
+            "identity.validate",
+            "identity.update",
+            "providers.list",
+            "providers.put",
+            "providers.remove",
+            "providers.test",
+            "providers.capabilities",
+            "secrets.set",
+            "secrets.remove",
+            "profiles.list",
+            "sessions.list",
+            "sessions.create",
+            "sessions.get",
+            "sessions.configure",
+            "sessions.messages",
+            "sessions.rename",
+            "sessions.remove",
+            "sessions.export",
+            "exports.read",
+            "chat.start",
+            "operation.get",
+            "operation.subscribe",
+            "operation.cancel",
+            "tools.list",
+            "tool.invoke",
+            "tool.confirm",
+            "resources.grant",
+            "resources.revoke",
+            "rag.ingest",
+            "rag.list",
+            "rag.search",
+            "rag.remove",
+            "rag.reindex",
+            "rag.source",
+            "memory.list",
+            "memory.put",
+            "memory.remove",
+            "models.list",
+            "models.running",
+            "models.show",
+            "models.pull",
+            "models.stop",
+            "models.remove",
+            "models.import",
+            "runtime.status",
+            "runtime.install",
+            "runtime.start",
+            "runtime.stop"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "protocol",
+        "type",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "atena.ipc/2"
+        },
+        "type": {
+          "const": "response"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "ok": {
+          "const": true
+        },
+        "result": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "protocol",
+        "type",
+        "id",
+        "ok",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "atena.ipc/2"
+        },
+        "type": {
+          "const": "response"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "ok": {
+          "const": false
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "INVALID_ARGUMENT",
+                "PROTOCOL_MISMATCH",
+                "NOT_CONFIGURED",
+                "NOT_FOUND",
+                "FEATURE_UNAVAILABLE",
+                "AUTH_REQUIRED",
+                "AUTH_FAILED",
+                "KEYRING_LOCKED",
+                "PERMISSION_DENIED",
+                "CONFIRMATION_REQUIRED",
+                "CONFIRMATION_EXPIRED",
+                "CANCELLED",
+                "TIMEOUT",
+                "NETWORK_ERROR",
+                "RATE_LIMITED",
+                "MODEL_NOT_FOUND",
+                "CONTEXT_TOO_LARGE",
+                "INSUFFICIENT_RESOURCES",
+                "DATABASE_ERROR",
+                "SCHEMA_TOO_NEW",
+                "PROVIDER_ERROR",
+                "REPLAY_UNAVAILABLE",
+                "IDEMPOTENCY_CONFLICT",
+                "BUSY",
+                "INTERNAL_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "details"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "protocol",
+        "type",
+        "id",
+        "ok",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "atena.ipc/2"
+        },
+        "type": {
+          "const": "event"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "operation.started",
+            "operation.queued",
+            "operation.progress",
+            "chat.delta",
+            "chat.citations",
+            "tool.proposed",
+            "tool.confirmation_required",
+            "tool.result",
+            "operation.warning",
+            "operation.finished"
+          ]
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "protocol",
+        "type",
+        "operation_id",
+        "seq",
+        "event",
+        "data"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

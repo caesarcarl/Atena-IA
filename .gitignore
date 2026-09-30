@@ -1,0 +1,16 @@
+/build/
+/tmp/
+*.db
+*.db-shm
+*.db-wal
+*.sock
+*.o
+*.a
+
+# Atena 0.5 developer outputs
+/build/
+/build-*/
+/dist/
+.venv/
+__pycache__/
+*.pyc

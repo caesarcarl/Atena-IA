@@ -1,0 +1,13 @@
+{
+  "sdk_version": "0.4.0",
+  "language": "C17",
+  "protocol": "atena.ipc/2",
+  "header": "include/atena/client.h",
+  "implementation": "sdk/client.c",
+  "transport": {
+    "linux": "Unix Domain Socket",
+    "windows": "not available in this baseline"
+  },
+  "autostart": true,
+  "consumers": ["atena CLI", "atena-ui Qt"]
+}

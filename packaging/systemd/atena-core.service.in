@@ -1,0 +1,14 @@
+[Unit]
+Description=Atena Core 0.4.2
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=@CMAKE_INSTALL_FULL_LIBEXECDIR@/atena/atena-core
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

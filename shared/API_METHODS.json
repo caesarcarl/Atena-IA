@@ -1,0 +1,2011 @@
+{
+  "contract": "atena.integration/1.0",
+  "protocol": "atena.ipc/2",
+  "note": "Registro normativo de nomes e parâmetros. Result descreve os campos mínimos por nome; SDK Core deve finalizar tipos/esquemas de resultados sem mudar semântica e fornecê-los aos clientes antes da implementação. Limites de bytes, autorizações e schemas especializados são validações adicionais obrigatórias.",
+  "methods": [
+    {
+      "name": "system.hello",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "client_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "client_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "protocol_minor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          }
+        },
+        "required": [
+          "client_name",
+          "client_version",
+          "protocol_minor"
+        ],
+        "additionalProperties": false
+      },
+      "result": "protocol_minor, core_version, methods[], features{}, limits{}",
+      "semantics": "Primeira chamada; não declarar método ausente. features descreve capacidades implementadas; protocolo major vem do envelope."
+    },
+    {
+      "name": "system.status",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "core_version, state, uptime_ms, active_operations, config_revision, provider_id, model, privacy_mode",
+      "semantics": "Sem probes externos automáticos."
+    },
+    {
+      "name": "system.doctor",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "probe_provider": {
+            "type": "boolean"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "checks[{id,status,message,action}], hardware{}, versions{}, paths{}",
+      "semantics": "Probes remotos só com escolha explícita e policy; paths/erros sanitizados."
+    },
+    {
+      "name": "config.get",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "revision, config{}",
+      "semantics": "Configuração efetiva; nunca segredo."
+    },
+    {
+      "name": "config.update",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "patch": {
+            "type": "object",
+            "properties": {
+              "default_provider_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "default_model": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "default_profile_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "privacy": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "offline",
+                      "remote",
+                      "hybrid"
+                    ]
+                  },
+                  "allow_remote_history": {
+                    "type": "boolean"
+                  },
+                  "allow_remote_rag": {
+                    "type": "boolean"
+                  },
+                  "allow_remote_memory": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "generation": {
+                "type": "object",
+                "properties": {
+                  "context_tokens": {
+                    "type": "integer",
+                    "minimum": 512,
+                    "maximum": 262144
+                  },
+                  "max_output_tokens": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 8192
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 2
+                  },
+                  "thinking": {
+                    "type": "string",
+                    "enum": [
+                      "off",
+                      "on",
+                      "auto",
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  "connect_timeout_ms": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 60000
+                  },
+                  "first_output_timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 900000
+                  },
+                  "idle_timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 900000
+                  },
+                  "total_timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 1800000
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "ui": {
+                "type": "object",
+                "properties": {
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "system",
+                      "light",
+                      "dark",
+                      "high_contrast"
+                    ]
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "text_scale": {
+                    "type": "number",
+                    "minimum": 0.75,
+                    "maximum": 3
+                  },
+                  "reduced_motion": {
+                    "type": "boolean"
+                  },
+                  "compact": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "persist_history": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "expected_revision",
+          "patch"
+        ],
+        "additionalProperties": false
+      },
+      "result": "revision, config{}",
+      "semantics": "Compare-and-swap; schema e policy; gravação atômica. Mudança de privacidade é escolha explícita do usuário."
+    },
+    {
+      "name": "identity.get",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "include_prompt": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "revision, documents{persona,pedagogy,regional}, origins{}, effective_prompt?",
+      "semantics": "Prompt é só identidade efetiva; sem histórico/documentos/chaves."
+    },
+    {
+      "name": "identity.validate",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "object",
+            "properties": {
+              "persona": {
+                "type": "object"
+              },
+              "pedagogy": {
+                "type": "object"
+              },
+              "regional": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "persona",
+              "pedagogy",
+              "regional"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "documents"
+        ],
+        "additionalProperties": false
+      },
+      "result": "valid, issues[{file,field,message}], preview",
+      "semantics": "O Core aplica schemas próprios versionados de identidade e limites de tamanho; não salvar."
+    },
+    {
+      "name": "identity.update",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "documents": {
+            "type": "object",
+            "properties": {
+              "persona": {
+                "type": "object"
+              },
+              "pedagogy": {
+                "type": "object"
+              },
+              "regional": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "persona",
+              "pedagogy",
+              "regional"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "expected_revision",
+          "documents"
+        ],
+        "additionalProperties": false
+      },
+      "result": "revision, valid, origins{}",
+      "semantics": "Somente override de identidade; não pode remover política mínima."
+    },
+    {
+      "name": "providers.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{provider_id,display_name,protocol,endpoint_redacted,configured,enabled}], default_provider_id",
+      "semantics": "Não devolver chave. Provider IDs são instâncias configuradas; presets são referências de UI."
+    },
+    {
+      "name": "providers.put",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "config": {
+            "type": "object",
+            "properties": {
+              "provider_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "display_name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "protocol": {
+                "type": "string",
+                "enum": [
+                  "ollama",
+                  "openai_chat_completions",
+                  "openai_responses",
+                  "anthropic_messages",
+                  "gemini_generate_content"
+                ]
+              },
+              "endpoint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              "secret_ref": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "model": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "local_only": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "provider_id",
+              "display_name",
+              "protocol",
+              "endpoint",
+              "enabled",
+              "local_only"
+            ],
+            "additionalProperties": false
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "config",
+          "expected_revision"
+        ],
+        "additionalProperties": false
+      },
+      "result": "provider_id, revision",
+      "semantics": "Cadastrar/editar configuração tipada; secret_ref deve pertencer ao usuário/provider."
+    },
+    {
+      "name": "providers.remove",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider_id",
+          "confirmed"
+        ],
+        "additionalProperties": false
+      },
+      "result": "removed, affected_default",
+      "semantics": "confirmed deve ser true e decorrer de ação explícita do usuário. Não é confirmação de tool."
+    },
+    {
+      "name": "providers.test",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Testa endpoint/modelo sem enviar documentos; respeita modo de rede."
+    },
+    {
+      "name": "providers.capabilities",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refresh": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "provider_id, model, capabilities{}, source, observed_at",
+      "semantics": "source=known/probed/unknown; refresh pode ter rede e obedece policy."
+    },
+    {
+      "name": "secrets.set",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384
+          },
+          "storage": {
+            "type": "string",
+            "enum": [
+              "keyring",
+              "session"
+            ]
+          }
+        },
+        "required": [
+          "provider_id",
+          "value",
+          "storage"
+        ],
+        "additionalProperties": false
+      },
+      "result": "secret_ref, stored_as",
+      "semantics": "Canal local autenticado; campo sensível. Não existe secrets.get; não persistir value em idempotência/log."
+    },
+    {
+      "name": "secrets.remove",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "secret_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "secret_ref",
+          "confirmed"
+        ],
+        "additionalProperties": false
+      },
+      "result": "removed",
+      "semantics": "confirmed true. Revoga referência; uso no provider passa a exigir credencial."
+    },
+    {
+      "name": "profiles.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{profile_id,display_name,generation,limits}], recommended_profile_id",
+      "semantics": "Perfis e recomendação não são garantia de desempenho."
+    },
+    {
+      "name": "sessions.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 40
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{session_id,title,updated_at,provider_id,model}], next_cursor",
+      "semantics": "Máximo 100; ordenação estável por updated_at e session_id."
+    },
+    {
+      "name": "sessions.create",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "history_mode": {
+            "type": "string",
+            "enum": [
+              "persist",
+              "ephemeral"
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "session_id, title, history_mode",
+      "semantics": "Sem criação de inferência; default persist deve respeitar config do usuário."
+    },
+    {
+      "name": "sessions.get",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "session_id, title, revision, history_mode, settings{}",
+      "semantics": "Obter configurações da conversa e revisão para update concorrente."
+    },
+    {
+      "name": "sessions.configure",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "generation": {
+            "type": "object",
+            "properties": {
+              "context_tokens": {
+                "type": "integer",
+                "minimum": 512,
+                "maximum": 262144
+              },
+              "max_output_tokens": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8192
+              },
+              "temperature": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 2
+              },
+              "thinking": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "on",
+                  "auto",
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "connect_timeout_ms": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 60000
+              },
+              "first_output_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 900000
+              },
+              "idle_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 900000
+              },
+              "total_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 1800000
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "tools": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "safe_read",
+                  "confirm"
+                ]
+              },
+              "allow": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 0,
+                "maxItems": 32
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "rag": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "document_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 0,
+                "maxItems": 100
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "session_id",
+          "expected_revision"
+        ],
+        "additionalProperties": false
+      },
+      "result": "session_id, revision, settings{}",
+      "semantics": "Atualização por compare-and-swap de defaults da sessão. Não pode afrouxar policy global. Mudança local/remoto exige autorização apropriada."
+    },
+    {
+      "name": "sessions.messages",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 40
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "items[{message_id,role,content,status,created_at,metadata}], next_cursor",
+      "semantics": "Mensagem parcial/cancelada é identificada. Conteúdo paginado, não banco direto."
+    },
+    {
+      "name": "sessions.rename",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "session_id",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "result": "session_id, title",
+      "semantics": "Não modificar conteúdo da conversa."
+    },
+    {
+      "name": "sessions.remove",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "session_id",
+          "confirmed"
+        ],
+        "additionalProperties": false
+      },
+      "result": "removed",
+      "semantics": "confirmed true; não apagar documentos/modelos externos."
+    },
+    {
+      "name": "sessions.export",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "markdown",
+              "json"
+            ]
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "session_id",
+          "format",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Produz export_id e metadados no terminal; não manda arquivo arbitrariamente grande num frame."
+    },
+    {
+      "name": "exports.read",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "export_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "max_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 196608,
+            "default": 65536
+          }
+        },
+        "required": [
+          "export_id",
+          "offset"
+        ],
+        "additionalProperties": false
+      },
+      "result": "encoding:base64, data, next_offset, eof, sha256",
+      "semantics": "Exportação temporária por usuário com TTL e controle de acesso; blocos evitam exceder frame. Salvar destino é ação explícita do frontend."
+    },
+    {
+      "name": "chat.start",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "generation": {
+            "type": "object",
+            "properties": {
+              "context_tokens": {
+                "type": "integer",
+                "minimum": 512,
+                "maximum": 262144
+              },
+              "max_output_tokens": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8192
+              },
+              "temperature": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 2
+              },
+              "thinking": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "on",
+                  "auto",
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "connect_timeout_ms": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 60000
+              },
+              "first_output_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 900000
+              },
+              "idle_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 900000
+              },
+              "total_timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 1800000
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "history_mode": {
+            "type": "string",
+            "enum": [
+              "persist",
+              "ephemeral"
+            ]
+          },
+          "tools": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "safe_read",
+                  "confirm"
+                ]
+              },
+              "allow": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 0,
+                "maxItems": 32
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "rag": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "document_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 0,
+                "maxItems": 100
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "session_id",
+          "text",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status:accepted, session_id, message_id",
+      "semantics": "Limite de texto também 65536 bytes UTF-8. Defaults vêm da config. tools.allow só restringe policy. session null cria sessão. Não aceita system_context."
+    },
+    {
+      "name": "operation.get",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status, last_seq, result, error",
+      "semantics": "Snapshot; estados e IDs consistentes com eventos."
+    },
+    {
+      "name": "operation.subscribe",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "after_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "operation_id",
+          "after_seq"
+        ],
+        "additionalProperties": false
+      },
+      "result": "subscribed, last_seq",
+      "semantics": "Replay limitado e assinatura sem lacunas; REPLAY_UNAVAILABLE quando descartado. Eventos só após resposta da assinatura."
+    },
+    {
+      "name": "operation.cancel",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, cancellation_requested, status",
+      "semantics": "Idempotente; resposta não garante cancelamento remoto global."
+    },
+    {
+      "name": "tools.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{tool_name,input_schema,risk,available,reason,requires_confirmation}]",
+      "semantics": "Somente implementações/capacidades reais. input_schema validado pelo Core."
+    },
+    {
+      "name": "tool.invoke",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "tool_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "tool_name",
+          "arguments",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Mesmo pipeline de policy do agente. Método acessível ao frontend; LLM usa somente registry, nunca RPC genérico."
+    },
+    {
+      "name": "tool.confirm",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmation_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "allow",
+              "deny"
+            ]
+          }
+        },
+        "required": [
+          "operation_id",
+          "confirmation_id",
+          "decision"
+        ],
+        "additionalProperties": false
+      },
+      "result": "accepted, operation_id",
+      "semantics": "IDs vinculam argumentos/recursos/expiração/usuário; sem campos que alterem argumentos."
+    },
+    {
+      "name": "resources.grant",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "metadata",
+                "read"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 2
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "session",
+              "profile"
+            ]
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "permissions",
+          "scope"
+        ],
+        "additionalProperties": false
+      },
+      "result": "grant_id, resource_id, display_name, permissions",
+      "semantics": "Ação explícita do usuário em frontend. Core valida path/links e vínculo session quando scope=session. Não exposto como tool do modelo."
+    },
+    {
+      "name": "resources.revoke",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "grant_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "revoked",
+      "semantics": "Revoga acesso futuro; não promete apagar cópias já enviadas a provider."
+    },
+    {
+      "name": "rag.ingest",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "grant_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "recursive": {
+            "type": "boolean"
+          },
+          "max_files": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "default": 100
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "grant_ids",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Grants de leitura explícitos; TXT/MD/PDF textual; limites e política de compartilhamento. Importar não autoriza envio remoto."
+    },
+    {
+      "name": "rag.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 40
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{document_id,title,content_sha256,mime,status,chunk_count}], next_cursor",
+      "semantics": "Não mostrar caminhos completos sem necessidade."
+    },
+    {
+      "name": "rag.search",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "document_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "result": "items[{document_id,chunk_id,title,location,excerpt,score,content_sha256}]",
+      "semantics": "Busca local lexical sem LLM; sanitize sintaxe MATCH."
+    },
+    {
+      "name": "rag.remove",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "document_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "document_ids",
+          "confirmed"
+        ],
+        "additionalProperties": false
+      },
+      "result": "removed_ids, errors[]",
+      "semantics": "confirmed true; remover índice/cópia gerenciada, não arquivo original."
+    },
+    {
+      "name": "rag.reindex",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "document_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "document_ids",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Determinístico, cancelável, não deixa índice parcialmente ativo."
+    },
+    {
+      "name": "rag.source",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "chunk_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "document_id",
+          "chunk_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "document_id, chunk_id, title, location, excerpt, content_sha256",
+      "semantics": "Somente documento permitido; rejeitar ID fabricado."
+    },
+    {
+      "name": "memory.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 40
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{memory_id,key,value,revision}], next_cursor",
+      "semantics": "Preferências aprovadas, não inferências secretas."
+    },
+    {
+      "name": "memory.put",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "memory_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "approved": {
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "memory_id",
+          "key",
+          "value",
+          "approved",
+          "expected_revision"
+        ],
+        "additionalProperties": false
+      },
+      "result": "memory_id, revision",
+      "semantics": "approved deve ser true, ação explícita de usuário; não pode alterar policy."
+    },
+    {
+      "name": "memory.remove",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "memory_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "memory_id",
+          "confirmed"
+        ],
+        "additionalProperties": false
+      },
+      "result": "removed",
+      "semantics": "confirmed true."
+    },
+    {
+      "name": "models.list",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "items[{model_id,display_name,size_bytes,installed}], source",
+      "semantics": "Listar conforme provider. Não fabricar lista se API não oferecer."
+    },
+    {
+      "name": "models.running",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id"
+        ],
+        "additionalProperties": false
+      },
+      "result": "items[{model_id,loaded_until,memory_bytes}], supported",
+      "semantics": "FEATURE_UNAVAILABLE se não suportado; valores desconhecidos null, não zero inventado."
+    },
+    {
+      "name": "models.show",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "provider_id",
+          "model"
+        ],
+        "additionalProperties": false
+      },
+      "result": "model_id, size_bytes, format, quantization, context, capabilities, license, source",
+      "semantics": "Metadados não medidos são unknown/null; nomes específicos de provider."
+    },
+    {
+      "name": "models.pull",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id",
+          "model",
+          "confirmed",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "confirmed true; origem/tamanho/licença apresentados quando conhecidos; sem insecure. Ollama controla seus blobs."
+    },
+    {
+      "name": "models.stop",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id",
+          "model",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Só descarregar instância autorizada; não matar daemon de outro programa."
+    },
+    {
+      "name": "models.remove",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "provider_id",
+          "model",
+          "confirmed",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "confirmed true; respeitar ownership e não confundir modelo gerenciado com compartilhado."
+    },
+    {
+      "name": "models.import",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "runtime_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "grant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "model_manifest": {
+            "type": "object"
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "runtime_id",
+          "grant_id",
+          "model_manifest",
+          "confirmed",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "GGUF gerenciado; schema de manifesto e SHA-256 real obrigatórios, conforme Core. confirmed true."
+    },
+    {
+      "name": "runtime.status",
+      "async": false,
+      "params_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "result": "items[{runtime_id,type,installed,running,version,managed,capabilities}]",
+      "semantics": "Não confundir runtime com modelo."
+    },
+    {
+      "name": "runtime.install",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "runtime_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "catalog_item_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "runtime_id",
+          "catalog_item_id",
+          "confirmed",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Item do catálogo verificável, sem URL/executável arbitrário; confirmed true."
+    },
+    {
+      "name": "runtime.start",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "runtime_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "runtime_id",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "Somente runtime reconhecido/gerenciado; readiness e timeout."
+    },
+    {
+      "name": "runtime.stop",
+      "async": true,
+      "params_schema": {
+        "type": "object",
+        "properties": {
+          "runtime_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "runtime_id",
+          "confirmed",
+          "idempotency_key"
+        ],
+        "additionalProperties": false
+      },
+      "result": "operation_id, status",
+      "semantics": "confirmed true; nunca parar daemon externo compartilhado sem autorização específica."
+    }
+  ]
+}
