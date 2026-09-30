@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Atena 0.5 Base Integrada
 
 Base de desenvolvimento que preserva o Atena 0.4.3 funcional e absorve a lógica útil do CyberCore Lite na camada de runtime.
@@ -84,3 +85,7 @@ printf '{"op":"health"}\n' | PYTHONPATH=. python3 -m atena_worker
 ```
 
 Veja `COMECE-AQUI-0.5.md` e `docs/architecture/MAPA-ATENA-0.5.md`.
+=======
+# Atena-IA
+An AI for knowledge-hungry minds that teaches and answers using the Socratic method.
+>>>>>>> 229cfc1304235fe1a350b3f95d6ede4eb57b6622
