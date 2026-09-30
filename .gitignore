@@ -1,38 +1,158 @@
-<<<<<<< HEAD
+# ============================================================
+# ATENA - arquivos locais / gerados
+# ============================================================
+
+# Builds
 /build/
-/tmp/
+/build-*/
+/cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+compile_commands.json
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Binários / objetos
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.dylib
+*.exe
+
+# Test/runtime
+Testing/
+*.log
+*.pid
+*.sock
+*.tmp
+*.bak
+*.swp
+
+# Bancos locais do usuário
 *.db
 *.db-shm
 *.db-wal
-*.sock
-*.o
-*.a
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
 
-# Atena 0.5 developer outputs
-/build/
-/build-*/
-/dist/
-.venv/
+# Python
 __pycache__/
-*.pyc
-=======
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-CMakeUserPresets.json
+*.py[cod]
+.venv/
+venv/
+env/
 
-# CLion
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#cmake-build-*
->>>>>>> 229cfc1304235fe1a350b3f95d6ede4eb57b6622
+# IDE / editores
+.idea/
+.vscode/
+*.user
+*.user.*
+*.code-workspace
+
+# SO
+.DS_Store
+Thumbs.db
+*~
+
+
+.env
+.env.*
+!.env.example
+
+.ssh/
+**/.ssh/
+
+id_rsa
+id_rsa.*
+id_dsa
+id_dsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+
+*.pem
+*.key
+*.p12
+*.pfx
+
+authorized_keys
+known_hosts
+
+credentials
+credentials.*
+secrets
+secrets.*
+secret
+secret.*
+
+# Configurações locais com credenciais
+config.local.*
+*.local.toml
+*.local.json
+*.local.yaml
+*.local.yml
+
+*.gguf
+*.safetensors
+*.onnx
+
+# Modelos baixados localmente
+models/
+.local-models/
+
+# Bases RAG pessoais / geradas
+rag-data/
+vector-store/
+chroma/
+.faiss/
+
+
+# ============================================================
+# Arquivos gerados do projeto
+# ============================================================
+
+SOURCE-MANIFEST*.sha256
+TREE-*.txt
+TEST-REPORT-*.txt
+
+# Patches locais temporários
+*.patch.rej
+*.patch.orig
+
+# Pacotes e backups locais
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Qt / CMake gerados
+.qt/
+*_autogen/
+moc_*.cpp
+qrc_*.cpp
+
+# Cobertura / profiling
+coverage/
+*.gcda
+*.gcno
+*.profraw
+
+# Core dumps
+core.*
+vgcore.*
+
+# Arquivos locais de usuário
+.history/
+.session/

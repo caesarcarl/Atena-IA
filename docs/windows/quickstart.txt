@@ -2,8 +2,8 @@ ATENA IA 0.4.3 - WINDOWS x64
 ============================
 
 1) Em um Windows 10/11 x64, extraia este projeto.
-2) Execute PREPARAR-WINDOWS.bat.
-3) Depois execute GERAR-INSTALADOR-WINDOWS.bat.
+2) Execute scripts/windows/PREPARAR-WINDOWS.bat.
+3) Depois execute scripts/windows/GERAR-INSTALADOR-WINDOWS.bat.
 
 Saídas esperadas:
   Atena-Setup-0.4.3-x64.exe

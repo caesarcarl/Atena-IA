@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-O caminho mais simples é executar `PREPARAR-WINDOWS.bat`. O build usa:
+O caminho mais simples é executar `scripts/windows/PREPARAR-WINDOWS.bat`. O build usa:
 
 - Windows 10 ou 11 x64
 - Visual Studio 2022 Build Tools, workload Desktop development with C++
