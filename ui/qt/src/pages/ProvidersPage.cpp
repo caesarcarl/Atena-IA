@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QList>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStyle>
 #include <QVBoxLayout>
 
@@ -17,22 +18,31 @@ namespace AtenaUi {
 ProvidersPage::ProvidersPage(AtenaClientFacade *client, QWidget *parent)
     : QWidget(parent), m_client(client)
 {
-    auto *outer = new QVBoxLayout(this);
+    auto *page = new QVBoxLayout(this);
+    page->setContentsMargins(0, 0, 0, 0);
+    page->setSpacing(0);
+
+    auto *scroll = new QScrollArea(this);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setWidgetResizable(true);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    auto *host = new QWidget;
+    auto *outer = new QVBoxLayout(host);
     outer->setContentsMargins(28, 24, 28, 24);
     outer->setSpacing(14);
 
-    auto *title = new QLabel(QStringLiteral("Serviços de IA"), this);
+    auto *title = new QLabel(QStringLiteral("Serviços de IA"), host);
     title->setObjectName(QStringLiteral("PageTitle"));
     auto *description = new QLabel(
-        QStringLiteral("Configure o Ollama ou uma API compatível com o protocolo OpenAI. "
-                       "Endpoint, modelo e provider ficam no Atena Core; chaves são protegidas pelo cofre de credenciais do sistema operacional."),
-        this);
+        QStringLiteral("Configure os serviços que a Atena pode usar. O processamento local continua disponível pelo Ollama; serviços online só são usados quando configurados."),
+        host);
     description->setObjectName(QStringLiteral("Muted"));
     description->setWordWrap(true);
 
-    auto *actions = new QHBoxLayout();
+    auto *actions = new QHBoxLayout;
     auto *refresh = new QPushButton(assetIcon(QStringLiteral(":/icons/navigation/providers.png")),
-                                    QStringLiteral("Atualizar"), this);
+                                    QStringLiteral("Atualizar"), host);
     refresh->setAccessibleName(QStringLiteral("Atualizar serviços de IA"));
     actions->addWidget(refresh);
     actions->addStretch();
@@ -43,14 +53,16 @@ ProvidersPage::ProvidersPage(AtenaClientFacade *client, QWidget *parent)
 
     QList<QPushButton *> coreButtons;
 
-    auto addProviderCard = [this, outer, &coreButtons](const QString &id,
-                                                       const QString &label,
-                                                       const QString &descriptionText,
-                                                       const QString &iconResource,
-                                                       bool primary) {
-        auto *card = new QFrame(this);
+    auto addProviderCard = [this, host, outer, &coreButtons](const QString &id,
+                                                             const QString &label,
+                                                             const QString &descriptionText,
+                                                             const QString &iconResource,
+                                                             bool primary) {
+        auto *card = new QFrame(host);
         card->setObjectName(primary ? QStringLiteral("Card") : QStringLiteral("SubtleCard"));
-        card->setMinimumHeight(88);
+        card->setMinimumHeight(96);
+        card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
         auto *row = new QHBoxLayout(card);
         row->setContentsMargins(18, 14, 18, 14);
         row->setSpacing(14);
@@ -60,7 +72,7 @@ ProvidersPage::ProvidersPage(AtenaClientFacade *client, QWidget *parent)
         icon->setFixedSize(48, 48);
         icon->setAlignment(Qt::AlignCenter);
 
-        auto *text = new QVBoxLayout();
+        auto *text = new QVBoxLayout;
         auto *providerTitle = new QLabel(label, card);
         providerTitle->setObjectName(QStringLiteral("SectionTitle"));
         auto *providerDescription = new QLabel(descriptionText, card);
@@ -74,18 +86,21 @@ ProvidersPage::ProvidersPage(AtenaClientFacade *client, QWidget *parent)
         text->addWidget(providerDescription);
         text->addWidget(status);
 
-        auto *buttons = new QHBoxLayout();
+        auto *buttons = new QVBoxLayout;
+        buttons->setSpacing(6);
         auto *test = new QPushButton(QStringLiteral("Testar"), card);
         auto *configure = new QPushButton(assetIcon(QStringLiteral(":/icons/navigation/settings.png")),
                                           QStringLiteral("Configurar"), card);
         if (primary) configure->setObjectName(QStringLiteral("PrimaryButton"));
         test->setEnabled(false);
         configure->setEnabled(false);
+        test->setMinimumWidth(108);
+        configure->setMinimumWidth(108);
         coreButtons << test << configure;
         buttons->addWidget(test);
         buttons->addWidget(configure);
 
-        row->addWidget(icon);
+        row->addWidget(icon, 0, Qt::AlignTop);
         row->addLayout(text, 1);
         row->addLayout(buttons);
         outer->addWidget(card);
@@ -98,37 +113,39 @@ ProvidersPage::ProvidersPage(AtenaClientFacade *client, QWidget *parent)
     };
 
     addProviderCard(QStringLiteral("ollama"), QStringLiteral("Ollama"),
-                    QStringLiteral("Local ou remoto · padrão http://127.0.0.1:11434"),
+                    QStringLiteral("IA local ou em outro computador da sua rede"),
                     QStringLiteral(":/icons/quick-actions/mode-local.png"), true);
 
-    auto *cloudTitle = new QLabel(QStringLiteral("APIs e gateways compatíveis"), this);
+    auto *cloudTitle = new QLabel(QStringLiteral("APIs e gateways compatíveis"), host);
     cloudTitle->setObjectName(QStringLiteral("SectionTitle"));
     outer->addWidget(cloudTitle);
 
     addProviderCard(QStringLiteral("openai"), QStringLiteral("OpenAI"),
-                    QStringLiteral("API oficial através de /v1/chat/completions"),
+                    QStringLiteral("Serviço online configurado por API"),
                     QStringLiteral(":/icons/quick-actions/mode-cloud.png"), false);
     addProviderCard(QStringLiteral("groq"), QStringLiteral("Groq"),
-                    QStringLiteral("Endpoint OpenAI-compatible da Groq"),
+                    QStringLiteral("Inferência online compatível com o protocolo OpenAI"),
                     QStringLiteral(":/icons/quick-actions/mode-cloud.png"), false);
     addProviderCard(QStringLiteral("deepseek"), QStringLiteral("DeepSeek"),
-                    QStringLiteral("Endpoint OpenAI-compatible da DeepSeek"),
+                    QStringLiteral("Serviço online compatível com o protocolo OpenAI"),
                     QStringLiteral(":/icons/quick-actions/mode-cloud.png"), false);
     addProviderCard(QStringLiteral("xai"), QStringLiteral("xAI"),
-                    QStringLiteral("Endpoint OpenAI-compatible da xAI"),
+                    QStringLiteral("Serviço online compatível com o protocolo OpenAI"),
                     QStringLiteral(":/icons/quick-actions/mode-cloud.png"), false);
     addProviderCard(QStringLiteral("openai_compatible"), QStringLiteral("OpenAI-compatible"),
-                    QStringLiteral("Servidor, proxy ou gateway personalizado compatível com /v1"),
+                    QStringLiteral("Servidor, proxy ou gateway personalizado"),
                     QStringLiteral(":/icons/quick-actions/mode-hybrid.png"), false);
 
     auto *note = new QLabel(
-        QStringLiteral("Anthropic e Gemini nativos continuam desativados nesta revisão porque usam contratos próprios. "
-                       "Eles podem ser usados somente quando o serviço escolhido oferecer um endpoint OpenAI-compatible."),
-        this);
+        QStringLiteral("Outros providers com contratos próprios serão adicionados como integrações nativas em etapas posteriores."),
+        host);
     note->setObjectName(QStringLiteral("Muted"));
     note->setWordWrap(true);
     outer->addWidget(note);
     outer->addStretch();
+
+    scroll->setWidget(host);
+    page->addWidget(scroll);
 
     connect(refresh, &QPushButton::clicked, m_client, &AtenaClientFacade::requestProviders);
     connect(m_client, &AtenaClientFacade::providersReady, this, &ProvidersPage::rebuild);

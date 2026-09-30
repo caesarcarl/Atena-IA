@@ -1,13 +1,20 @@
 #include "ChatComposer.h"
 #include "../AssetCatalog.h"
+#include "../theme/UiMetrics.h"
 
+#include <QAbstractTextDocumentLayout>
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSize>
+#include <QTextDocument>
+
+#include <algorithm>
+#include <cmath>
 
 namespace AtenaUi {
 
@@ -25,10 +32,11 @@ ChatComposer::ChatComposer(QWidget *parent)
     layout->setSpacing(8);
 
     m_editor->setPlaceholderText(QStringLiteral("Pergunte à Atena…"));
-    m_editor->setMaximumHeight(110);
     m_editor->setTabChangesFocus(true);
-    m_editor->installEventFilter(this);
     m_editor->setAccessibleName(QStringLiteral("Mensagem para Atena"));
+    m_editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_editor->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_editor->installEventFilter(this);
 
     m_attach->setIcon(assetIcon(QStringLiteral(":/icons/navigation/files.png")));
     m_attach->setIconSize(QSize(20, 20));
@@ -50,18 +58,26 @@ ChatComposer::ChatComposer(QWidget *parent)
     layout->addWidget(m_stop);
     layout->addWidget(m_send);
 
+    connect(m_editor->document(), &QTextDocument::contentsChanged,
+            this, &ChatComposer::updateEditorHeight);
+
     connect(m_send, &QPushButton::clicked, this, [this] {
         const QString value = m_editor->toPlainText().trimmed();
-        if (!value.isEmpty()) {
-            Q_EMIT sendRequested(value);
-        }
+        if (!value.isEmpty()) Q_EMIT sendRequested(value);
     });
     connect(m_stop, &QPushButton::clicked, this, &ChatComposer::stopRequested);
     connect(m_attach, &QPushButton::clicked, this, &ChatComposer::attachRequested);
+
+    updateEditorHeight();
 }
 
 QString ChatComposer::text() const { return m_editor->toPlainText(); }
-void ChatComposer::clear() { m_editor->clear(); }
+
+void ChatComposer::clear()
+{
+    m_editor->clear();
+    updateEditorHeight();
+}
 
 void ChatComposer::setGenerating(bool generating)
 {
@@ -70,15 +86,22 @@ void ChatComposer::setGenerating(bool generating)
     m_editor->setEnabled(!generating);
 }
 
+void ChatComposer::updateEditorHeight()
+{
+    const int docHeight = static_cast<int>(std::ceil(m_editor->document()->size().height()));
+    const int target = std::clamp(docHeight + 18,
+                                  Metrics::ComposerMinHeight,
+                                  Metrics::ComposerMaxHeight);
+    m_editor->setFixedHeight(target);
+}
+
 bool ChatComposer::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_editor && event->type() == QEvent::KeyPress) {
         auto *key = static_cast<QKeyEvent *>(event);
         if (key->key() == Qt::Key_Return && (key->modifiers() & Qt::ControlModifier)) {
             const QString value = m_editor->toPlainText().trimmed();
-            if (!value.isEmpty()) {
-                Q_EMIT sendRequested(value);
-            }
+            if (!value.isEmpty()) Q_EMIT sendRequested(value);
             return true;
         }
     }

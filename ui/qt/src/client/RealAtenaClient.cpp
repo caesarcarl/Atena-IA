@@ -212,9 +212,14 @@ QVariantMap RealAtenaClient::localDiagnostics() const
 
     QFile log(logPath);
     if (log.open(QIODevice::ReadOnly)) {
-        constexpr qint64 maxTail = 12 * 1024;
-        if (log.size() > maxTail) log.seek(log.size() - maxTail);
-        result.insert(QStringLiteral("core_log_tail"), QString::fromUtf8(log.readAll()));
+        QByteArray current = log.readAll();
+        const QByteArray marker("\n=== Atena Core spawn ===\n");
+        const qsizetype markerPos = current.lastIndexOf(marker);
+        if (markerPos >= 0) current = current.mid(markerPos + 1);
+
+        constexpr qsizetype maxCurrentLog = 12 * 1024;
+        if (current.size() > maxCurrentLog) current = current.right(maxCurrentLog);
+        result.insert(QStringLiteral("core_log_tail"), QString::fromUtf8(current));
     } else {
         result.insert(QStringLiteral("core_log_tail"), QStringLiteral("Log ainda não criado."));
     }

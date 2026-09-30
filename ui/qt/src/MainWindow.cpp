@@ -13,6 +13,7 @@
 #include "pages/SettingsPage.h"
 #include "pages/ToolsPage.h"
 #include "theme/ThemeManager.h"
+#include "theme/UiMetrics.h"
 #include "widgets/NavButton.h"
 #include "widgets/StatusChip.h"
 
@@ -23,6 +24,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QSettings>
 #include <QStackedWidget>
 #include <QStatusBar>
@@ -94,18 +96,18 @@ MainWindow::MainWindow(AtenaClientFacade *client, ThemeManager *theme, QWidget *
     rootLayout->setContentsMargins(0, 0, 0, 0);
     rootLayout->setSpacing(0);
 
-    auto *sidebar = new QFrame(central);
-    sidebar->setObjectName(QStringLiteral("Sidebar"));
-    sidebar->setFixedWidth(252);
+    m_sidebar = new QFrame(central);
+    m_sidebar->setObjectName(QStringLiteral("Sidebar"));
+    m_sidebar->setFixedWidth(Metrics::SidebarWide);
 
-    auto *sideLayout = new QVBoxLayout(sidebar);
+    auto *sideLayout = new QVBoxLayout(m_sidebar);
     sideLayout->setContentsMargins(16, 18, 16, 18);
     sideLayout->setSpacing(5);
-    sideLayout->addWidget(createBrand(sidebar));
+    sideLayout->addWidget(createBrand(m_sidebar));
     sideLayout->addSpacing(14);
 
     auto *newChat = new QPushButton(assetIcon(QStringLiteral(":/icons/navigation/new-conversation.png")),
-                                    QStringLiteral("Nova conversa"), sidebar);
+                                    QStringLiteral("Nova conversa"), m_sidebar);
     newChat->setObjectName(QStringLiteral("PrimaryButton"));
     newChat->setAccessibleName(QStringLiteral("Nova conversa"));
     newChat->setMinimumHeight(42);
@@ -116,7 +118,7 @@ MainWindow::MainWindow(AtenaClientFacade *client, ThemeManager *theme, QWidget *
     for (int index = 0; index < static_cast<int>(std::size(kNavigation)); ++index) {
         const auto &item = kNavigation[index];
         auto *button = new NavButton(QString::fromUtf8(item.label),
-                                     QString::fromLatin1(item.icon), sidebar);
+                                     QString::fromLatin1(item.icon), m_sidebar);
         navButtons.append(button);
         sideLayout->addWidget(button);
         connect(button, &QPushButton::clicked, this, [this, index] { showPage(index); });
@@ -124,7 +126,7 @@ MainWindow::MainWindow(AtenaClientFacade *client, ThemeManager *theme, QWidget *
     navButtons.first()->setChecked(true);
     sideLayout->addStretch();
 
-    auto *version = new QLabel(QStringLiteral("Atena 0.5.0-base · integrada"), sidebar);
+    auto *version = new QLabel(QStringLiteral("Atena · integrada"), m_sidebar);
     version->setObjectName(QStringLiteral("Muted"));
     version->setAlignment(Qt::AlignCenter);
     sideLayout->addWidget(version);
@@ -167,7 +169,7 @@ MainWindow::MainWindow(AtenaClientFacade *client, ThemeManager *theme, QWidget *
     m_stack->addWidget(new DiagnosticsPage(m_client, m_stack));
     m_stack->addWidget(new SettingsPage(m_theme, m_stack));
 
-    rootLayout->addWidget(sidebar);
+    rootLayout->addWidget(m_sidebar);
     rootLayout->addWidget(content, 1);
     setCentralWidget(central);
 
@@ -210,6 +212,7 @@ MainWindow::MainWindow(AtenaClientFacade *client, ThemeManager *theme, QWidget *
         restoreGeometry(settings.value(QStringLiteral("ui/geometry")).toByteArray());
     }
 
+    updateResponsiveShell();
     QTimer::singleShot(0, this, &MainWindow::showOnboardingIfNeeded);
 }
 
@@ -241,3 +244,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 } // namespace AtenaUi
+
+void AtenaUi::MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    updateResponsiveShell();
+}
+
+void AtenaUi::MainWindow::updateResponsiveShell()
+{
+    if (!m_sidebar) return;
+    const int target = width() < AtenaUi::Metrics::CompactWindowWidth
+        ? AtenaUi::Metrics::SidebarCompact
+        : AtenaUi::Metrics::SidebarWide;
+    if (m_sidebar->width() != target) m_sidebar->setFixedWidth(target);
+}

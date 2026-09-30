@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ATENA_SCHEMA_VERSION 4
+#define ATENA_SCHEMA_VERSION 5
 
 static AtenaStatus exec_sql(sqlite3 *db, const char *sql) {
     char *err = NULL;
@@ -36,6 +36,29 @@ static AtenaStatus table_has_column(sqlite3 *db, const char *table, const char *
         const char *name = (const char *)sqlite3_column_text(stmt, 1);
         if (name && strcmp(name, column) == 0) {
             *out_has = 1;
+            break;
+        }
+    }
+    sqlite3_finalize(stmt);
+    return (rc == SQLITE_ROW || rc == SQLITE_DONE) ? ATENA_OK : ATENA_ERR_DB;
+}
+
+static AtenaStatus column_is_primary_key(sqlite3 *db, const char *table, const char *column, int *out_pk) {
+    if (!db || !table || !column || !out_pk) return ATENA_ERR_INVALID_ARGUMENT;
+    *out_pk = 0;
+
+    char sql[160];
+    int n = snprintf(sql, sizeof(sql), "PRAGMA table_info(\"%s\")", table);
+    if (n < 0 || (size_t)n >= sizeof(sql)) return ATENA_ERR_INVALID_ARGUMENT;
+
+    sqlite3_stmt *stmt = NULL;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) return ATENA_ERR_DB;
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        const char *name = (const char *)sqlite3_column_text(stmt, 1);
+        if (name && strcmp(name, column) == 0) {
+            *out_pk = sqlite3_column_int(stmt, 5) > 0;
             break;
         }
     }
@@ -95,15 +118,16 @@ static AtenaStatus repair_preferences_schema(sqlite3 *db) {
     AtenaStatus st = table_exists(db, "preferences", &exists);
     if (st != ATENA_OK || !exists) return st;
 
-    int has_key = 0, has_value = 0, has_updated = 0;
+    int has_key = 0, has_value = 0, has_updated = 0, key_is_pk = 0;
     if ((st = table_has_column(db, "preferences", "key", &has_key)) != ATENA_OK) return st;
     if ((st = table_has_column(db, "preferences", "value", &has_value)) != ATENA_OK) return st;
     if ((st = table_has_column(db, "preferences", "updated_at", &has_updated)) != ATENA_OK) return st;
-    if (has_key && has_value && has_updated) return ATENA_OK;
+    if (has_key && (st = column_is_primary_key(db, "preferences", "key", &key_is_pk)) != ATENA_OK) return st;
+    if (has_key && has_value && has_updated && key_is_pk) return ATENA_OK;
 
-    /* The common intermediate schema already had `key`, but used another
-     * value/timestamp column. Repair it in place so UNIQUE/PK semantics stay. */
-    if (has_key) {
+    /* If the canonical primary key exists, additive repairs are safe and retain
+     * the original table/index semantics. */
+    if (has_key && key_is_pk) {
         const char *value_alias = NULL;
         const char *time_alias = NULL;
         static const char *value_candidates[] = {"data", "payload", "pref_value", "json", "text"};
@@ -145,9 +169,10 @@ static AtenaStatus repair_preferences_schema(sqlite3 *db) {
         return ATENA_OK;
     }
 
-    /* Unknown/older shape: preserve the whole original table, create the
-     * canonical table and copy only fields we can identify safely. */
-    char backup[128], sql[1024];
+    /* A table may expose the right column names but still lack PRIMARY KEY(key).
+     * ON CONFLICT(key) then fails at prepare time. Preserve it, rebuild the
+     * canonical schema and salvage every row whose key/value can be identified. */
+    char backup[128], sql[1200];
     if ((st = next_backup_table_name(db, "preferences", backup)) != ATENA_OK) return st;
     int n = snprintf(sql, sizeof(sql), "ALTER TABLE preferences RENAME TO \"%s\";", backup);
     if (n < 0 || (size_t)n >= sizeof(sql)) return ATENA_ERR_INVALID_ARGUMENT;
@@ -155,7 +180,7 @@ static AtenaStatus repair_preferences_schema(sqlite3 *db) {
     if ((st = exec_sql(db,
         "CREATE TABLE preferences(key TEXT PRIMARY KEY,value TEXT NOT NULL,updated_at TEXT NOT NULL);")) != ATENA_OK) return st;
 
-    static const char *key_candidates[] = {"name", "pref_key", "id"};
+    static const char *key_candidates[] = {"key", "name", "pref_key", "id"};
     static const char *value_candidates[] = {"value", "data", "payload", "pref_value", "json", "text"};
     static const char *time_candidates[] = {"updated_at", "created_at", "timestamp", "modified_at"};
     const char *key_col = NULL, *value_col = NULL, *time_col = NULL;
@@ -167,67 +192,115 @@ static AtenaStatus repair_preferences_schema(sqlite3 *db) {
             n = snprintf(sql, sizeof(sql),
                 "INSERT OR REPLACE INTO preferences(key,value,updated_at) "
                 "SELECT CAST(\"%s\" AS TEXT),COALESCE(CAST(\"%s\" AS TEXT),''),"
-                "COALESCE(CAST(\"%s\" AS TEXT),strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ','now')) "
-                "FROM \"%s\" WHERE \"%s\" IS NOT NULL;",
-                key_col, value_col, time_col, backup, key_col);
+                "COALESCE(NULLIF(CAST(\"%s\" AS TEXT),''),strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ','now')) "
+                "FROM \"%s\" WHERE \"%s\" IS NOT NULL AND CAST(\"%s\" AS TEXT)<>'';",
+                key_col, value_col, time_col, backup, key_col, key_col);
         } else {
             n = snprintf(sql, sizeof(sql),
                 "INSERT OR REPLACE INTO preferences(key,value,updated_at) "
                 "SELECT CAST(\"%s\" AS TEXT),COALESCE(CAST(\"%s\" AS TEXT),''),"
                 "strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ','now') "
-                "FROM \"%s\" WHERE \"%s\" IS NOT NULL;",
-                key_col, value_col, backup, key_col);
+                "FROM \"%s\" WHERE \"%s\" IS NOT NULL AND CAST(\"%s\" AS TEXT)<>'';",
+                key_col, value_col, backup, key_col, key_col);
         }
         if (n < 0 || (size_t)n >= sizeof(sql)) return ATENA_ERR_INVALID_ARGUMENT;
         if ((st = exec_sql(db, sql)) != ATENA_OK) return st;
     }
-    fprintf(stderr, "Atena SQLite: preferences incompatível preservada como %s e esquema canônico criado.\n", backup);
+    fprintf(stderr, "Atena SQLite: preferences incompatível preservada como %s e esquema canônico recriado.\n", backup);
     return ATENA_OK;
 }
 
 static AtenaStatus repair_providers_schema(sqlite3 *db) {
-    int exists = 0, has_id = 0;
+    int exists = 0, has_id = 0, id_is_pk = 0;
     AtenaStatus st = table_exists(db, "providers", &exists);
     if (st != ATENA_OK || !exists) return st;
     if ((st = table_has_column(db, "providers", "id", &has_id)) != ATENA_OK) return st;
+    if (has_id && (st = column_is_primary_key(db, "providers", "id", &id_is_pk)) != ATENA_OK) return st;
 
-    if (!has_id) {
-        char backup[128], sql[384];
-        if ((st = next_backup_table_name(db, "providers", backup)) != ATENA_OK) return st;
-        int n = snprintf(sql, sizeof(sql), "ALTER TABLE providers RENAME TO \"%s\";", backup);
+    if (has_id && id_is_pk) {
+        struct Repair { const char *column; const char *sql; } repairs[] = {
+            {"type", "ALTER TABLE providers ADD COLUMN type TEXT NOT NULL DEFAULT 'openai_compatible';"},
+            {"model", "ALTER TABLE providers ADD COLUMN model TEXT NOT NULL DEFAULT '';"},
+            {"capabilities", "ALTER TABLE providers ADD COLUMN capabilities INTEGER NOT NULL DEFAULT 0;"},
+            {"capabilities_known", "ALTER TABLE providers ADD COLUMN capabilities_known INTEGER NOT NULL DEFAULT 0;"},
+            {"enabled", "ALTER TABLE providers ADD COLUMN enabled INTEGER NOT NULL DEFAULT 1;"},
+            {"updated_at", "ALTER TABLE providers ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';"},
+        };
+        int changed = 0;
+        for (size_t i = 0; i < sizeof(repairs)/sizeof(repairs[0]); i++) {
+            int has = 0;
+            if ((st = table_has_column(db, "providers", repairs[i].column, &has)) != ATENA_OK) return st;
+            if (!has) {
+                if ((st = exec_sql(db, repairs[i].sql)) != ATENA_OK) return st;
+                changed = 1;
+            }
+        }
+        if (changed) {
+            if ((st = exec_sql(db,
+                "UPDATE providers SET updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE updated_at='';")) != ATENA_OK) return st;
+            fprintf(stderr, "Atena SQLite: tabela providers legada reparada in-place.\n");
+        }
+        return ATENA_OK;
+    }
+
+    /* Like preferences, some real intermediate databases had canonical column
+     * names but no PRIMARY KEY(id). That makes ON CONFLICT(id) unusable. Rebuild
+     * transactionally and preserve all recognizable provider metadata. */
+    char backup[128], sql[1800];
+    if ((st = next_backup_table_name(db, "providers", backup)) != ATENA_OK) return st;
+    int n = snprintf(sql, sizeof(sql), "ALTER TABLE providers RENAME TO \"%s\";", backup);
+    if (n < 0 || (size_t)n >= sizeof(sql)) return ATENA_ERR_INVALID_ARGUMENT;
+    if ((st = exec_sql(db, sql)) != ATENA_OK) return st;
+    if ((st = exec_sql(db,
+        "CREATE TABLE providers("
+        "id TEXT PRIMARY KEY,type TEXT NOT NULL,model TEXT NOT NULL,capabilities INTEGER NOT NULL,"
+        "capabilities_known INTEGER NOT NULL DEFAULT 0,enabled INTEGER NOT NULL,updated_at TEXT NOT NULL);")) != ATENA_OK) return st;
+
+    static const char *id_candidates[] = {"id", "provider_id", "name"};
+    static const char *type_candidates[] = {"type", "provider_type"};
+    static const char *model_candidates[] = {"model", "default_model"};
+    static const char *caps_candidates[] = {"capabilities", "capabilities_supported"};
+    static const char *known_candidates[] = {"capabilities_known", "known_capabilities"};
+    static const char *enabled_candidates[] = {"enabled", "configured", "active"};
+    static const char *time_candidates[] = {"updated_at", "created_at", "timestamp", "modified_at"};
+    const char *id_col = NULL, *type_col = NULL, *model_col = NULL, *caps_col = NULL;
+    const char *known_col = NULL, *enabled_col = NULL, *time_col = NULL;
+    if ((st = first_existing_column(db, backup, id_candidates, sizeof(id_candidates)/sizeof(id_candidates[0]), &id_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, type_candidates, sizeof(type_candidates)/sizeof(type_candidates[0]), &type_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, model_candidates, sizeof(model_candidates)/sizeof(model_candidates[0]), &model_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, caps_candidates, sizeof(caps_candidates)/sizeof(caps_candidates[0]), &caps_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, known_candidates, sizeof(known_candidates)/sizeof(known_candidates[0]), &known_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, enabled_candidates, sizeof(enabled_candidates)/sizeof(enabled_candidates[0]), &enabled_col)) != ATENA_OK) return st;
+    if ((st = first_existing_column(db, backup, time_candidates, sizeof(time_candidates)/sizeof(time_candidates[0]), &time_col)) != ATENA_OK) return st;
+
+    if (id_col) {
+        char id_expr[128], type_expr[192], model_expr[160], caps_expr[160];
+        char known_expr[160], enabled_expr[160], time_expr[224];
+        snprintf(id_expr, sizeof(id_expr), "CAST(\"%s\" AS TEXT)", id_col);
+        if (type_col) snprintf(type_expr, sizeof(type_expr), "COALESCE(NULLIF(CAST(\"%s\" AS TEXT),''),'openai_compatible')", type_col);
+        else snprintf(type_expr, sizeof(type_expr), "'openai_compatible'");
+        if (model_col) snprintf(model_expr, sizeof(model_expr), "COALESCE(CAST(\"%s\" AS TEXT),'')", model_col);
+        else snprintf(model_expr, sizeof(model_expr), "''");
+        if (caps_col) snprintf(caps_expr, sizeof(caps_expr), "COALESCE(CAST(\"%s\" AS INTEGER),0)", caps_col);
+        else snprintf(caps_expr, sizeof(caps_expr), "0");
+        if (known_col) snprintf(known_expr, sizeof(known_expr), "COALESCE(CAST(\"%s\" AS INTEGER),0)", known_col);
+        else snprintf(known_expr, sizeof(known_expr), "0");
+        if (enabled_col) snprintf(enabled_expr, sizeof(enabled_expr), "CASE WHEN CAST(\"%s\" AS INTEGER)=0 THEN 0 ELSE 1 END", enabled_col);
+        else snprintf(enabled_expr, sizeof(enabled_expr), "1");
+        if (time_col) snprintf(time_expr, sizeof(time_expr), "COALESCE(NULLIF(CAST(\"%s\" AS TEXT),''),strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ','now'))", time_col);
+        else snprintf(time_expr, sizeof(time_expr), "strftime('%%Y-%%m-%%dT%%H:%%M:%%fZ','now')");
+
+        n = snprintf(sql, sizeof(sql),
+            "INSERT OR REPLACE INTO providers(id,type,model,capabilities,capabilities_known,enabled,updated_at) "
+            "SELECT %s,%s,%s,%s,%s,%s,%s FROM \"%s\" "
+            "WHERE \"%s\" IS NOT NULL AND CAST(\"%s\" AS TEXT)<>'';",
+            id_expr, type_expr, model_expr, caps_expr, known_expr, enabled_expr, time_expr,
+            backup, id_col, id_col);
         if (n < 0 || (size_t)n >= sizeof(sql)) return ATENA_ERR_INVALID_ARGUMENT;
         if ((st = exec_sql(db, sql)) != ATENA_OK) return st;
-        st = exec_sql(db,
-            "CREATE TABLE providers("
-            "id TEXT PRIMARY KEY,type TEXT NOT NULL,model TEXT NOT NULL,capabilities INTEGER NOT NULL,"
-            "capabilities_known INTEGER NOT NULL DEFAULT 0,enabled INTEGER NOT NULL,updated_at TEXT NOT NULL);" );
-        if (st == ATENA_OK)
-            fprintf(stderr, "Atena SQLite: providers incompatível preservada como %s e esquema canônico criado.\n", backup);
-        return st;
     }
 
-    struct Repair { const char *column; const char *sql; } repairs[] = {
-        {"type", "ALTER TABLE providers ADD COLUMN type TEXT NOT NULL DEFAULT 'openai_compatible';"},
-        {"model", "ALTER TABLE providers ADD COLUMN model TEXT NOT NULL DEFAULT '';"},
-        {"capabilities", "ALTER TABLE providers ADD COLUMN capabilities INTEGER NOT NULL DEFAULT 0;"},
-        {"capabilities_known", "ALTER TABLE providers ADD COLUMN capabilities_known INTEGER NOT NULL DEFAULT 0;"},
-        {"enabled", "ALTER TABLE providers ADD COLUMN enabled INTEGER NOT NULL DEFAULT 1;"},
-        {"updated_at", "ALTER TABLE providers ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';"},
-    };
-    int changed = 0;
-    for (size_t i = 0; i < sizeof(repairs)/sizeof(repairs[0]); i++) {
-        int has = 0;
-        if ((st = table_has_column(db, "providers", repairs[i].column, &has)) != ATENA_OK) return st;
-        if (!has) {
-            if ((st = exec_sql(db, repairs[i].sql)) != ATENA_OK) return st;
-            changed = 1;
-        }
-    }
-    if (changed) {
-        if ((st = exec_sql(db,
-            "UPDATE providers SET updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE updated_at='';")) != ATENA_OK) return st;
-        fprintf(stderr, "Atena SQLite: tabela providers legada reparada in-place.\n");
-    }
+    fprintf(stderr, "Atena SQLite: providers incompatível preservada como %s e esquema canônico recriado.\n", backup);
     return ATENA_OK;
 }
 
@@ -271,6 +344,17 @@ static AtenaStatus verify_column(sqlite3 *db, const char *table, const char *col
     if (!has_column) {
         fprintf(stderr, "Atena SQLite: schema incompatível: tabela '%s' sem coluna '%s'\n",
                 table, column);
+        return ATENA_ERR_DB;
+    }
+    return ATENA_OK;
+}
+
+static AtenaStatus verify_primary_key(sqlite3 *db, const char *table, const char *column) {
+    int is_pk = 0;
+    AtenaStatus st = column_is_primary_key(db, table, column, &is_pk);
+    if (st != ATENA_OK) return st;
+    if (!is_pk) {
+        fprintf(stderr, "Atena SQLite: schema incompatível: '%s.%s' não é PRIMARY KEY\n", table, column);
         return ATENA_ERR_DB;
     }
     return ATENA_OK;
@@ -337,6 +421,10 @@ static AtenaStatus migrate(AtenaStore *store) {
     status = repair_preferences_schema(store->db);
     if (status != ATENA_OK) goto rollback;
     status = repair_providers_schema(store->db);
+    if (status != ATENA_OK) goto rollback;
+    status = verify_primary_key(store->db, "preferences", "key");
+    if (status != ATENA_OK) goto rollback;
+    status = verify_primary_key(store->db, "providers", "id");
     if (status != ATENA_OK) goto rollback;
 
     /* v0/v1 compatibility: conversation_id was the old public name. */
@@ -405,7 +493,7 @@ static AtenaStatus migrate(AtenaStore *store) {
         "ON messages(session_id, created_at);");
     if (status != ATENA_OK) goto rollback;
 
-    status = exec_sql(store->db, "PRAGMA user_version=4;");
+    status = exec_sql(store->db, "PRAGMA user_version=5;");
     if (status != ATENA_OK) goto rollback;
 
     status = exec_sql(store->db, "COMMIT;");
@@ -540,9 +628,15 @@ AtenaStatus atena_store_preference_put(AtenaStore *store, const char *key, const
     char now[32]; atena_now_iso8601(now);
     sqlite3_stmt *stmt = NULL;
     const char *sql = "INSERT INTO preferences(key,value,updated_at) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at";
-    if (sqlite3_prepare_v2(store->db, sql, -1, &stmt, NULL) != SQLITE_OK) return ATENA_ERR_DB;
+    int prepare_rc = sqlite3_prepare_v2(store->db, sql, -1, &stmt, NULL);
+    if (prepare_rc != SQLITE_OK) {
+        fprintf(stderr, "Atena SQLite: preference_put prepare falhou: %s\n", sqlite3_errmsg(store->db));
+        return ATENA_ERR_DB;
+    }
     sqlite3_bind_text(stmt,1,key,-1,SQLITE_TRANSIENT); sqlite3_bind_text(stmt,2,value,-1,SQLITE_TRANSIENT); sqlite3_bind_text(stmt,3,now,-1,SQLITE_TRANSIENT);
-    int rc=sqlite3_step(stmt); sqlite3_finalize(stmt); return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;
+    int rc=sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) fprintf(stderr, "Atena SQLite: preference_put step falhou: %s\n", sqlite3_errmsg(store->db));
+    sqlite3_finalize(stmt); return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;
 }
 
 AtenaStatus atena_store_preference_get(AtenaStore *store, const char *key, char **out_value) {
@@ -682,6 +776,14 @@ AtenaStatus atena_store_operation_begin(AtenaStore *store,const char *operation_
 AtenaStatus atena_store_operation_finish(AtenaStore *store,const char *operation_id,const char *state,int status_code){if(!store||!operation_id||!state)return ATENA_ERR_INVALID_ARGUMENT;char now[32];atena_now_iso8601(now);sqlite3_stmt *s=NULL;if(sqlite3_prepare_v2(store->db,"UPDATE operations SET state=?,status_code=?,updated_at=? WHERE id=?",-1,&s,NULL)!=SQLITE_OK)return ATENA_ERR_DB;sqlite3_bind_text(s,1,state,-1,SQLITE_TRANSIENT);sqlite3_bind_int(s,2,status_code);sqlite3_bind_text(s,3,now,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,4,operation_id,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(s);sqlite3_finalize(s);return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;}
 AtenaStatus atena_store_operation_by_key(AtenaStore *store,const char *session_id,const char *key,char out_id[37],char out_state[24]){if(!store||!session_id||!key||!*key||!out_id||!out_state)return ATENA_ERR_INVALID_ARGUMENT;sqlite3_stmt *s=NULL;if(sqlite3_prepare_v2(store->db,"SELECT id,state FROM operations WHERE session_id=? AND idempotency_key=?",-1,&s,NULL)!=SQLITE_OK)return ATENA_ERR_DB;sqlite3_bind_text(s,1,session_id,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,2,key,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(s);if(rc==SQLITE_ROW){snprintf(out_id,37,"%s",sqlite3_column_text(s,0));snprintf(out_state,24,"%s",sqlite3_column_text(s,1));sqlite3_finalize(s);return ATENA_OK;}sqlite3_finalize(s);return rc==SQLITE_DONE?ATENA_ERR_NOT_FOUND:ATENA_ERR_DB;}
 
-AtenaStatus atena_store_provider_upsert(AtenaStore *store,const char *id,const char *type,const char *model,unsigned long long caps,unsigned long long known,int enabled){if(!store||!id||!type||!model)return ATENA_ERR_INVALID_ARGUMENT;char now[32];atena_now_iso8601(now);sqlite3_stmt*s=NULL;const char*sql="INSERT INTO providers(id,type,model,capabilities,capabilities_known,enabled,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET type=excluded.type,model=excluded.model,capabilities=excluded.capabilities,capabilities_known=excluded.capabilities_known,enabled=excluded.enabled,updated_at=excluded.updated_at";if(sqlite3_prepare_v2(store->db,sql,-1,&s,NULL)!=SQLITE_OK)return ATENA_ERR_DB;sqlite3_bind_text(s,1,id,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,2,type,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,3,model,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(s,4,(sqlite3_int64)caps);sqlite3_bind_int64(s,5,(sqlite3_int64)known);sqlite3_bind_int(s,6,enabled);sqlite3_bind_text(s,7,now,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(s);sqlite3_finalize(s);return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;}
+AtenaStatus atena_store_provider_upsert(AtenaStore *store,const char *id,const char *type,const char *model,unsigned long long caps,unsigned long long known,int enabled){
+    if(!store||!id||!type||!model)return ATENA_ERR_INVALID_ARGUMENT;
+    char now[32];atena_now_iso8601(now);sqlite3_stmt*s=NULL;
+    const char*sql="INSERT INTO providers(id,type,model,capabilities,capabilities_known,enabled,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET type=excluded.type,model=excluded.model,capabilities=excluded.capabilities,capabilities_known=excluded.capabilities_known,enabled=excluded.enabled,updated_at=excluded.updated_at";
+    int prepare_rc=sqlite3_prepare_v2(store->db,sql,-1,&s,NULL);
+    if(prepare_rc!=SQLITE_OK){fprintf(stderr,"Atena SQLite: provider_upsert prepare falhou: %s\n",sqlite3_errmsg(store->db));return ATENA_ERR_DB;}
+    sqlite3_bind_text(s,1,id,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,2,type,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,3,model,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(s,4,(sqlite3_int64)caps);sqlite3_bind_int64(s,5,(sqlite3_int64)known);sqlite3_bind_int(s,6,enabled);sqlite3_bind_text(s,7,now,-1,SQLITE_TRANSIENT);
+    int rc=sqlite3_step(s);if(rc!=SQLITE_DONE)fprintf(stderr,"Atena SQLite: provider_upsert step falhou: %s\n",sqlite3_errmsg(store->db));sqlite3_finalize(s);return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;
+}
 AtenaStatus atena_store_provider_list_json(AtenaStore*store,char**out_json){if(!store||!out_json)return ATENA_ERR_INVALID_ARGUMENT;*out_json=NULL;json_object*arr=json_object_new_array();if(!arr)return ATENA_ERR_NO_MEMORY;sqlite3_stmt*s=NULL;if(sqlite3_prepare_v2(store->db,"SELECT id,type,model,capabilities,capabilities_known,enabled FROM providers ORDER BY id",-1,&s,NULL)!=SQLITE_OK){json_object_put(arr);return ATENA_ERR_DB;}int rc;while((rc=sqlite3_step(s))==SQLITE_ROW){json_object*o=json_object_new_object();json_object_object_add(o,"id",json_object_new_string((const char*)sqlite3_column_text(s,0)));json_object_object_add(o,"type",json_object_new_string((const char*)sqlite3_column_text(s,1)));json_object_object_add(o,"model",json_object_new_string((const char*)sqlite3_column_text(s,2)));json_object_object_add(o,"capabilities_supported",json_object_new_int64(sqlite3_column_int64(s,3)));json_object_object_add(o,"capabilities_known",json_object_new_int64(sqlite3_column_int64(s,4)));json_object_object_add(o,"enabled",json_object_new_boolean(sqlite3_column_int(s,5)));json_object_object_add(o,"configured",json_object_new_boolean(sqlite3_column_int(s,5)));json_object_array_add(arr,o);}sqlite3_finalize(s);if(rc!=SQLITE_DONE){json_object_put(arr);return ATENA_ERR_DB;}*out_json=atena_strdup(json_object_to_json_string_ext(arr,JSON_C_TO_STRING_PLAIN));json_object_put(arr);return *out_json?ATENA_OK:ATENA_ERR_NO_MEMORY;}
 AtenaStatus atena_store_audit(AtenaStore*store,const char*event,const char*session_id,const char*operation_id,const char*details){if(!store||!event)return ATENA_ERR_INVALID_ARGUMENT;char now[32];atena_now_iso8601(now);sqlite3_stmt*s=NULL;if(sqlite3_prepare_v2(store->db,"INSERT INTO audit_events(event,session_id,operation_id,details,created_at) VALUES(?,?,?,?,?)",-1,&s,NULL)!=SQLITE_OK)return ATENA_ERR_DB;sqlite3_bind_text(s,1,event,-1,SQLITE_TRANSIENT);if(session_id)sqlite3_bind_text(s,2,session_id,-1,SQLITE_TRANSIENT);else sqlite3_bind_null(s,2);if(operation_id)sqlite3_bind_text(s,3,operation_id,-1,SQLITE_TRANSIENT);else sqlite3_bind_null(s,3);sqlite3_bind_text(s,4,details?details:"",-1,SQLITE_TRANSIENT);sqlite3_bind_text(s,5,now,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(s);sqlite3_finalize(s);return rc==SQLITE_DONE?ATENA_OK:ATENA_ERR_DB;}

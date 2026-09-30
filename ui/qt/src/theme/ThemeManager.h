@@ -16,6 +16,7 @@ public:
     Theme currentTheme() const;
     void setTheme(Theme theme);
     static QString themeName(Theme theme);
+    bool isDarkEffective() const;
 
 Q_SIGNALS:
     void themeChanged(AtenaUi::ThemeManager::Theme theme);

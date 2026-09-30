@@ -97,7 +97,7 @@ int main(void) {
 
     ATENA_TEST_ASSERT(sqlite3_prepare_v2(db, "PRAGMA user_version", -1, &stmt, NULL) == SQLITE_OK);
     ATENA_TEST_ASSERT(sqlite3_step(stmt) == SQLITE_ROW);
-    ATENA_TEST_ASSERT(sqlite3_column_int(stmt, 0) == 4);
+    ATENA_TEST_ASSERT(sqlite3_column_int(stmt, 0) == 5);
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 

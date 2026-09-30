@@ -213,7 +213,7 @@ endif()
 
 if(ATENA_BUILD_TESTS AND NOT WIN32)
   enable_testing()
-  foreach(test_name IN ITEMS test_core test_persistence test_migration_legacy test_migration_intermediate test_rag test_ipc_sdk test_tools test_protocol test_runtime)
+  foreach(test_name IN ITEMS test_core test_persistence test_migration_legacy test_migration_intermediate test_migration_constraints test_rag test_ipc_sdk test_tools test_protocol test_runtime)
     add_executable(${test_name} tests/${test_name}.c)
     target_link_libraries(${test_name} PRIVATE atena_core atena_ipc_server atena_client)
     add_test(NAME ${test_name} COMMAND ${test_name})

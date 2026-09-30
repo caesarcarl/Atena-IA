@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
@@ -48,12 +49,23 @@ ChatPage::ChatPage(AtenaClientFacade *client, QWidget *parent)
     m_messages->setContentsMargins(10, 10, 10, 10);
     m_messages->setSpacing(12);
     m_messages->addStretch();
+
     m_scroll->setFrameShape(QFrame::NoFrame);
     m_scroll->setWidgetResizable(true);
     m_scroll->setWidget(m_messageHost);
     m_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     outer->addWidget(m_scroll, 1);
     outer->addWidget(m_composer);
+
+    auto *bar = m_scroll->verticalScrollBar();
+    connect(bar, &QScrollBar::valueChanged, this, [this, bar](int value) {
+        const int distance = bar->maximum() - value;
+        m_followTail = distance <= 32;
+    });
+    connect(bar, &QScrollBar::rangeChanged, this, [this](int, int) {
+        updateBubbleWidths();
+        if (m_followTail) scrollToBottom();
+    });
 
     m_composer->setEnabled(false);
     addMessage(MessageBubble::Role::System,
@@ -87,6 +99,7 @@ ChatPage::ChatPage(AtenaClientFacade *client, QWidget *parent)
                 m_sessionId = session;
                 m_streamingBubble = nullptr;
                 m_composer->setGenerating(true);
+                m_followTail = true;
             });
 
     connect(m_client, &AtenaClientFacade::chatDelta, this,
@@ -94,10 +107,12 @@ ChatPage::ChatPage(AtenaClientFacade *client, QWidget *parent)
                 if (op != m_activeOperation) return;
                 if (!m_streamingBubble) {
                     m_streamingBubble = new MessageBubble(MessageBubble::Role::Assistant, QString(), m_messageHost);
+                    m_streamingBubble->setStreaming(true);
+                    m_streamingBubble->setAvailableWidth(m_scroll->viewport()->width() - 24);
                     m_messages->insertWidget(m_messages->count() - 1, m_streamingBubble, 0, Qt::AlignLeft);
                 }
                 m_streamingBubble->appendDelta(delta);
-                scrollToBottom();
+                if (m_followTail) scrollToBottom();
             }, Qt::QueuedConnection);
 
     connect(m_client, &AtenaClientFacade::operationFinished, this,
@@ -110,9 +125,11 @@ ChatPage::ChatPage(AtenaClientFacade *client, QWidget *parent)
                         m_lastError = friendly;
                     }
                 }
+                if (m_streamingBubble) m_streamingBubble->setStreaming(false);
                 m_activeOperation.clear();
                 m_streamingBubble = nullptr;
                 m_composer->setGenerating(false);
+                updateBubbleWidths();
             }, Qt::QueuedConnection);
 
     connect(m_client, &AtenaClientFacade::clientError, this,
@@ -126,6 +143,7 @@ ChatPage::ChatPage(AtenaClientFacade *client, QWidget *parent)
                     addMessage(MessageBubble::Role::System, friendly);
                     m_lastError = friendly;
                 }
+                if (m_streamingBubble) m_streamingBubble->setStreaming(false);
                 m_activeOperation.clear();
                 m_streamingBubble = nullptr;
                 m_composer->setGenerating(false);
@@ -144,6 +162,7 @@ void ChatPage::newConversation()
     m_sessionId.clear();
     m_streamingBubble = nullptr;
     m_lastError.clear();
+    m_followTail = true;
     m_composer->setGenerating(false);
     clearMessages();
     addMessage(MessageBubble::Role::System,
@@ -159,9 +178,11 @@ int ChatPage::messageCount() const
 void ChatPage::addMessage(MessageBubble::Role role, const QString &text)
 {
     auto *bubble = new MessageBubble(role, text, m_messageHost);
+    bubble->setAvailableWidth(m_scroll->viewport()->width() - 24);
     m_messages->insertWidget(m_messages->count() - 1, bubble, 0,
                              role == MessageBubble::Role::User ? Qt::AlignRight : Qt::AlignLeft);
-    scrollToBottom();
+    m_followTail = true;
+    scrollToBottom(true);
 }
 
 void ChatPage::handleSend(const QString &text)
@@ -200,11 +221,29 @@ QString ChatPage::friendlyError(const QString &code, const QString &message) con
     return QStringLiteral("Não foi possível concluir a operação. Detalhe técnico: %1").arg(technical);
 }
 
-void ChatPage::scrollToBottom()
+void ChatPage::scrollToBottom(bool force)
 {
-    QTimer::singleShot(0, this, [this] {
-        m_scroll->verticalScrollBar()->setValue(m_scroll->verticalScrollBar()->maximum());
+    if (!force && !m_followTail) return;
+    QTimer::singleShot(0, this, [this, force] {
+        if (!force && !m_followTail) return;
+        auto *bar = m_scroll->verticalScrollBar();
+        bar->setValue(bar->maximum());
     });
+}
+
+void ChatPage::updateBubbleWidths()
+{
+    const int width = qMax(220, m_scroll->viewport()->width() - 24);
+    for (int i = 0; i < m_messages->count() - 1; ++i) {
+        if (auto *bubble = qobject_cast<MessageBubble *>(m_messages->itemAt(i)->widget()))
+            bubble->setAvailableWidth(width);
+    }
+}
+
+void ChatPage::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updateBubbleWidths();
 }
 
 } // namespace AtenaUi

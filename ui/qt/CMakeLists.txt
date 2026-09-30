@@ -31,6 +31,9 @@ add_library(atena-ui-lib STATIC
     src/pages/SettingsPage.h
     src/pages/ToolsPage.h
     src/theme/ThemeManager.h
+    src/theme/ThemePalette.h
+    src/theme/UiMetrics.h
+    src/theme/UiTypography.h
     src/widgets/ChatComposer.h
     src/widgets/MessageBubble.h
     src/widgets/NavButton.h
