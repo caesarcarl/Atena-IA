@@ -32,7 +32,20 @@ int main(int argc,char **argv){
     if(status!=ATENA_OK){fprintf(stderr,"Atena: falha ao preparar paths: %s\n",atena_status_string(status));return 1;}
 
     const char *value;
-    if((value=option_value(argc,argv,"--db")))snprintf(paths.database,sizeof(paths.database),"%s",value);
+    const char *db_option = option_value(argc,argv,"--db");
+    const char *storage_option = option_value(argc,argv,"--storage");
+    const char *storage_env = getenv("ATENA_STORAGE_MODE");
+    const char *storage_mode = storage_option && *storage_option ? storage_option :
+                               (storage_env && *storage_env ? storage_env :
+                               (db_option && *db_option ? "persistent" : "memory"));
+    if(strcmp(storage_mode,"memory")!=0 && strcmp(storage_mode,"persistent")!=0){
+        fprintf(stderr,"Atena: modo de armazenamento inválido '%s' (use memory ou persistent).\n",storage_mode);
+        return 1;
+    }
+    if(!strcmp(storage_mode,"memory"))
+        snprintf(paths.database,sizeof(paths.database),":memory:");
+    else if(db_option && *db_option)
+        snprintf(paths.database,sizeof(paths.database),"%s",db_option);
     if((value=option_value(argc,argv,"--identity")))snprintf(paths.identity_dir,sizeof(paths.identity_dir),"%s",value);
     if((value=option_value(argc,argv,"--socket")))snprintf(paths.endpoint,sizeof(paths.endpoint),"%s",value);
 
@@ -52,7 +65,8 @@ int main(int argc,char **argv){
     AtenaCore *core=NULL;
     status=atena_core_create(&config,&core);
     if(status!=ATENA_OK){
-        fprintf(stderr,"Atena: falha ao abrir armazenamento local (%s)\npath: %s\n",atena_status_string(status),paths.database);
+        fprintf(stderr,"Atena: falha ao iniciar armazenamento %s (%s)\npath: %s\n",
+                storage_mode,atena_status_string(status),paths.database);
 #ifdef _WIN32
         ReleaseMutex(instance);CloseHandle(instance);
 #else
@@ -103,7 +117,7 @@ int main(int argc,char **argv){
 #else
     signal(SIGINT,on_signal);signal(SIGTERM,on_signal);
 #endif
-    fprintf(stdout,"Atena Core 0.5.0-base pronto em %s\n",paths.endpoint);fflush(stdout);
+    fprintf(stdout,"Atena Core 0.5.0-base pronto em %s | storage=%s\n",paths.endpoint,storage_mode);fflush(stdout);
     while(!stop_requested){
 #ifdef _WIN32
         Sleep(250);

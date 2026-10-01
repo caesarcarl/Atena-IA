@@ -1,4 +1,15 @@
 #include "atena/platform.h"
+#include <stdlib.h>
+#include <string.h>
+
+static const char *atena_storage_mode(void) {
+    const char *mode = getenv("ATENA_STORAGE_MODE");
+    return (mode && strcmp(mode, "persistent") == 0) ? "persistent" : "memory";
+}
+
+static const char *atena_storage_database(const AtenaPaths *paths) {
+    return strcmp(atena_storage_mode(), "persistent") == 0 ? paths->database : ":memory:";
+}
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -52,8 +63,9 @@ static HANDLE open_log(const AtenaPaths *paths, wchar_t out_path[ATENA_PATH_MAX]
     char marker[(ATENA_PATH_MAX * 2) + 256];
     int n = snprintf(marker, sizeof(marker),
                      "\r\n=== Atena Core spawn ===\r\n"
-                     "executable=%s\r\nendpoint=%s\r\ndatabase=%s\r\nidentity=%s\r\n",
-                     paths->core_executable, paths->endpoint, paths->database, paths->identity_dir);
+                     "executable=%s\r\nendpoint=%s\r\nstorage=%s\r\ndatabase=%s\r\nidentity=%s\r\n",
+                     paths->core_executable, paths->endpoint, atena_storage_mode(),
+                     atena_storage_database(paths), paths->identity_dir);
     if (n > 0) {
         DWORD written = 0;
         (void)WriteFile(log, marker, (DWORD)((size_t)n < sizeof(marker) ? (size_t)n : sizeof(marker) - 1U), &written, NULL);
@@ -68,13 +80,13 @@ AtenaStatus atena_process_start_core(const AtenaPaths *paths) {
     wchar_t exe[ATENA_PATH_MAX], endpoint[ATENA_PATH_MAX], database[ATENA_PATH_MAX], identity[ATENA_PATH_MAX];
     if (!wide_from_utf8(paths->core_executable, exe, ATENA_PATH_MAX) ||
         !wide_from_utf8(paths->endpoint, endpoint, ATENA_PATH_MAX) ||
-        !wide_from_utf8(paths->database, database, ATENA_PATH_MAX) ||
+        !wide_from_utf8(atena_storage_database(paths), database, ATENA_PATH_MAX) ||
         !wide_from_utf8(paths->identity_dir, identity, ATENA_PATH_MAX)) return ATENA_ERR_PATH;
 
     wchar_t cmd[(ATENA_PATH_MAX * 4) + 128];
     if (swprintf_s(cmd, sizeof(cmd) / sizeof(cmd[0]),
-                   L"\"%ls\" --socket \"%ls\" --db \"%ls\" --identity \"%ls\"",
-                   exe, endpoint, database, identity) < 0) return ATENA_ERR_PATH;
+                   L"\"%ls\" --socket \"%ls\" --storage \"%hs\" --db \"%ls\" --identity \"%ls\"",
+                   exe, endpoint, atena_storage_mode(), database, identity) < 0) return ATENA_ERR_PATH;
 
     wchar_t log_path[ATENA_PATH_MAX];
     HANDLE log = open_log(paths, log_path);
@@ -150,8 +162,9 @@ static void append_spawn_marker(const AtenaPaths *paths, const char *log_path) {
     if (fd < 0) return;
     dprintf(fd,
             "\n=== Atena Core spawn ===\n"
-            "executable=%s\nendpoint=%s\ndatabase=%s\nidentity=%s\n",
-            paths->core_executable, paths->endpoint, paths->database, paths->identity_dir);
+            "executable=%s\nendpoint=%s\nstorage=%s\ndatabase=%s\nidentity=%s\n",
+            paths->core_executable, paths->endpoint, atena_storage_mode(),
+            atena_storage_database(paths), paths->identity_dir);
     close(fd);
 }
 
@@ -178,7 +191,8 @@ AtenaStatus atena_process_start_core(const AtenaPaths *paths) {
 
     char *argv[] = {(char*)paths->core_executable,
                     "--socket", (char*)paths->endpoint,
-                    "--db", (char*)paths->database,
+                    "--storage", (char*)atena_storage_mode(),
+                    "--db", (char*)atena_storage_database(paths),
                     "--identity", (char*)paths->identity_dir,
                     NULL};
     pid_t pid = 0;

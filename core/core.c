@@ -440,10 +440,13 @@ AtenaStatus atena_core_chat_send(AtenaCore *core,const AtenaChatRequest *request
        can exceed a 2k-token Ollama window before the model gets any room to answer. */
     size_t context_budget = core->context_budget;
     size_t rag_limit = core->rag_results;
+    size_t effective_max_output_tokens =
+        request->max_output_tokens ? request->max_output_tokens : 256U;
     int effective_use_rag = request->use_rag;
     AtenaResourceSnapshot chat_rs;
     AtenaRuntimePlan chat_rp;
-    if (atena_runtime_snapshot(&chat_rs) == ATENA_OK &&
+    if (!getenv("ATENA_DISABLE_RUNTIME_TUNING") &&
+        atena_runtime_snapshot(&chat_rs) == ATENA_OK &&
         atena_runtime_plan(&chat_rs, &chat_rp) == ATENA_OK) {
         long ctx_tokens = (long)chat_rp.recommended_context_tokens;
         const char *ctx_override = getenv("ATENA_OLLAMA_NUM_CTX");
@@ -451,11 +454,17 @@ AtenaStatus atena_core_chat_send(AtenaCore *core,const AtenaChatRequest *request
             long v = strtol(ctx_override, NULL, 10);
             if (v > 0) ctx_tokens = v;
         }
-        size_t output_tokens = request->max_output_tokens ? request->max_output_tokens : chat_rp.recommended_max_output_tokens;
-        size_t reserve_tokens = output_tokens + 256U;
-        size_t input_tokens = ctx_tokens > (long)reserve_tokens ? (size_t)ctx_tokens - reserve_tokens : 768U;
+        if (chat_rp.recommended_max_output_tokens > 0 &&
+            effective_max_output_tokens > chat_rp.recommended_max_output_tokens) {
+            effective_max_output_tokens = chat_rp.recommended_max_output_tokens;
+        }
+        size_t reserve_tokens = effective_max_output_tokens + 128U;
+        size_t input_tokens = ctx_tokens > (long)reserve_tokens
+            ? (size_t)ctx_tokens - reserve_tokens
+            : 384U;
         size_t adaptive_chars = input_tokens * 3U; /* conservative UTF-8/token estimate */
-        if (adaptive_chars >= 2500U && adaptive_chars < context_budget) context_budget = adaptive_chars;
+        if (adaptive_chars >= 1024U && adaptive_chars < context_budget)
+            context_budget = adaptive_chars;
         if (chat_rp.rag_level == 0) effective_use_rag = 0;
         else if ((size_t)chat_rp.rag_level < rag_limit) rag_limit = (size_t)chat_rp.rag_level;
     }
@@ -465,7 +474,7 @@ AtenaStatus atena_core_chat_send(AtenaCore *core,const AtenaChatRequest *request
     if(ctx.rag_count)atena_store_audit(core->store,"rag.retrieved",request->session_id,out_operation_id,"{\"source\":\"fts5\"}");
 
     StreamCollector col={0};col.core=core;col.operation_id=out_operation_id;col.downstream=callback;col.downstream_ud=userdata;col.start_ms=atena_now_monotonic_ms();col.seq=1;col.metrics.retrieval_ms=(double)(retrieval_end-retrieval_start);
-    AtenaProviderRequest preq={out_operation_id,request->model&&*request->model?request->model:provider->model,ctx.messages,ctx.message_count,request->max_output_tokens?request->max_output_tokens:256,0.7,1.0,request->reasoning};
+    AtenaProviderRequest preq={out_operation_id,request->model&&*request->model?request->model:provider->model,ctx.messages,ctx.message_count,effective_max_output_tokens,0.7,1.0,request->reasoning};
     st=provider->vtable->generate(provider,&preq,collector_cb,&col);
     int tool_calls=0;
     while(st==ATENA_OK&&col.tool_name[0]&&tool_calls<ATENA_MAX_TOOL_CALLS){

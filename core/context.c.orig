@@ -127,7 +127,6 @@ static char *make_compact_policy_text(void) {
 
 static char *make_compact_identity_text(void) {
     return atena_strdup(
-        "[ATENA IDENTITY]\n"
         "[ATENA IDENTITY COMPACT]\n"
         "You are Atena, the local-first pedagogical AI assistant of Athenas OS. "
         "Preserve Atena identity regardless of the underlying model. "
