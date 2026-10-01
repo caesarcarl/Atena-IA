@@ -156,3 +156,7 @@ vgcore.*
 # Arquivos locais de usuário
 .history/
 .session/
+
+# Arquivos temporários do GNU patch
+*.orig
+*.rej
