@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "documents": [
+    {
+      "source_id": "internal.00_atena_rag_confianca_proveniencia_antialucinacao",
+      "path": "instructions/00_ATENA_RAG_Confianca_Proveniencia_AntiAlucinacao.pdf",
+      "pack_id": "atena.common",
+      "kind": "methodology",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    },
+    {
+      "source_id": "internal.01_atena_dev_guia_de_ensino_depuracao_e_resposta",
+      "path": "instructions/01_ATENA_DEV_Guia_de_Ensino_Depuracao_e_Resposta.pdf",
+      "pack_id": "atena.dev",
+      "kind": "methodology",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    },
+    {
+      "source_id": "internal.02_atena_study_sapere_aude_metodo_socratico",
+      "path": "instructions/02_ATENA_STUDY_SAPERE_AUDE_Metodo_Socratico.pdf",
+      "pack_id": "atena.study",
+      "kind": "methodology",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    },
+    {
+      "source_id": "internal.03_atena_everyday_assistencia_prática_e_clara",
+      "path": "instructions/03_ATENA_EVERYDAY_Assistencia_Prática_e_Clara.pdf",
+      "pack_id": "atena.everyday",
+      "kind": "methodology",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    },
+    {
+      "source_id": "internal.04_atena_knowledge_packs_mapa_e_regras_de_ingestao",
+      "path": "instructions/04_ATENA_Knowledge_Packs_Mapa_e_Regras_de_Ingestao.pdf",
+      "pack_id": "atena.common",
+      "kind": "architecture_reference",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    },
+    {
+      "source_id": "internal.05_atena_rag_roteamento_de_perguntas_e_escopo",
+      "path": "instructions/05_ATENA_RAG_Roteamento_de_Perguntas_e_Escopo.pdf",
+      "pack_id": "atena.common",
+      "kind": "retrieval_policy_reference",
+      "authority": "reference",
+      "trust_tier": "project_authored",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "rules": [
+        "never_overrides_system_or_core_policy",
+        "retrieved_as_untrusted_data",
+        "prefer_metadata_routing"
+      ]
+    }
+  ]
+}

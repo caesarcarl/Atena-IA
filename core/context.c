@@ -1,5 +1,6 @@
 #include "context.h"
 #include "util.h"
+#include "atena/pedagogy.h"
 #include <json-c/json.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -193,8 +194,14 @@ AtenaStatus atena_context_build(AtenaStore *store,
     const size_t user_reserve = strlen(user_text) + 256U;
     const size_t fixed_cap =
         configured_budget > user_reserve ? configured_budget - user_reserve : configured_budget;
+    AtenaPedagogyPlan pedagogy_plan;
+    if (atena_pedagogy_plan(user_text, &pedagogy_plan) != ATENA_OK)
+        memset(&pedagogy_plan, 0, sizeof(pedagogy_plan));
+    const char *pedagogy_instruction =
+        atena_pedagogy_instruction(&pedagogy_plan, configured_budget <= 2500U);
     size_t fixed_need = strlen(policy) + strlen(identity);
     if (prefs && *prefs) fixed_need += strlen(prefs) + 64U;
+    if (pedagogy_instruction) fixed_need += strlen(pedagogy_instruction) + 32U;
     if (fixed_need > fixed_cap) {
         char *compact_policy = make_compact_policy_text();
         char *compact_identity = make_compact_identity_text();
@@ -212,7 +219,8 @@ AtenaStatus atena_context_build(AtenaStore *store,
 
     size_t cap=0,count=0; AtenaMessage *msgs=NULL;
     if (!append_message(&msgs,&count,&cap,ATENA_ROLE_SYSTEM,policy,session_id) ||
-        !append_message(&msgs,&count,&cap,ATENA_ROLE_SYSTEM,identity,session_id)) {
+        !append_message(&msgs,&count,&cap,ATENA_ROLE_SYSTEM,identity,session_id) ||
+        (pedagogy_instruction && !append_message(&msgs,&count,&cap,ATENA_ROLE_SYSTEM,pedagogy_instruction,session_id))) {
         st=ATENA_ERR_NO_MEMORY; goto done;
     }
     if (prefs && *prefs) {

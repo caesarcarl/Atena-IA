@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "atena.common",
+  "version": "0.1.0",
+  "display_name": "Atena Common",
+  "description": "Conhecimento compartilhado para uso cotidiano, pesquisa, seguranca digital e alfabetizacao computacional.",
+  "audience": ["all"],
+  "languages": ["pt-BR", "en"],
+  "dependencies": [],
+  "domains": ["digital_literacy", "research_literacy", "practical_math", "communication", "productivity", "cybersecurity_basics", "everyday_science"],
+  "retrieval": {"priority": 50, "default_max_hits": 2},
+  "distribution": {"bundled_in_demo": true, "optional": false},
+  "sources": []
+}

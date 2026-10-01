@@ -9,10 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef ATENA_VERSION
-#define ATENA_VERSION "0.6.0"
-#endif
-
 #ifndef ATENA_PACKAGE_REVISION
 #define ATENA_PACKAGE_REVISION "development"
 #endif
@@ -198,7 +194,7 @@ AtenaStatus atena_ipc_dispatch_request(AtenaCore *core, AtenaNativeHandle fd, js
         json_object *r = json_object_new_object();
         json_object_object_add(r, "protocol", json_object_new_string("atena.ipc/2"));
         json_object_object_add(r, "name", json_object_new_string("Atena Core"));
-        json_object_object_add(r, "version", json_object_new_string(ATENA_VERSION));
+        json_object_object_add(r, "version", json_object_new_string("0.5.0-base"));
         json_object_object_add(r, "package_revision", json_object_new_string(ATENA_PACKAGE_REVISION));
         json_object_object_add(r, "methods", methods_json());
         AtenaStatus s = send_result(fd, id, r); json_object_put(r); return s;

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "atena.dev",
+  "version": "0.1.0",
+  "display_name": "Atena Dev",
+  "description": "Base especializada para programadores, estudantes de computacao e desenvolvimento de software.",
+  "audience": ["developer", "programming_student", "sysadmin"],
+  "languages": ["pt-BR", "en"],
+  "dependencies": ["atena.common"],
+  "domains": ["programming", "algorithms", "data_structures", "c", "cpp", "python", "shell", "linux", "git", "debugging", "software_engineering", "computer_architecture", "networking", "databases", "testing"],
+  "retrieval": {"priority": 90, "default_max_hits": 4},
+  "distribution": {"bundled_in_demo": true, "optional": true},
+  "sources": []
+}

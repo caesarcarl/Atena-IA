@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "atena.everyday",
+  "version": "0.1.0",
+  "display_name": "Atena Everyday",
+  "description": "Base para trabalho, casa e tarefas digitais cotidianas sem especializacao tecnica obrigatoria.",
+  "audience": ["general_user", "home_user", "office_user"],
+  "languages": ["pt-BR", "en"],
+  "dependencies": ["atena.common"],
+  "domains": ["office_productivity", "documents", "spreadsheets", "presentations", "email", "file_management", "home_computing", "device_troubleshooting", "digital_organization", "communication", "cybersecurity_basics", "consumer_technology", "practical_math", "everyday_science"],
+  "retrieval": {"priority": 70, "default_max_hits": 3},
+  "distribution": {"bundled_in_demo": true, "optional": true},
+  "sources": []
+}

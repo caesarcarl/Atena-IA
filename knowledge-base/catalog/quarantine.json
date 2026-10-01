@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-01",
+  "entries": [
+    {
+      "source_id": "study.openstax.*",
+      "status": "blocked_for_automatic_ingestion",
+      "reason": "Current OpenStax book pages state that the book may not be used in training or otherwise ingested into large language models or generative AI offerings without prior written permission.",
+      "action": "Do not download/index into Atena automatically. Re-evaluate only with explicit written permission or updated terms.",
+      "source_url": "https://openstax.org/"
+    },
+    {
+      "source_id": "study.openintro.website-automated-access",
+      "status": "manual_review",
+      "reason": "OpenIntro resources are often Creative Commons, but current website Terms include special conditions for automated scraping/access.",
+      "action": "Do not scrape the website. If added later, use a user-obtained licensed PDF and audit the exact file/license separately.",
+      "source_url": "https://www.openintro.org/license/"
+    }
+  ]
+}

@@ -17,7 +17,6 @@ typedef struct AtenaBuiltContext {
     size_t message_count;
     AtenaRagHit *rag_hits;
     size_t rag_count;
-    size_t knowledge_count;
     int history_truncated;
     int rag_truncated;
 } AtenaBuiltContext;

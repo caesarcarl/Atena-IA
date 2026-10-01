@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-01",
+  "policy": {
+    "ingest_only_if_ai_ingestion_allowed": true,
+    "prefer_official_or_author_source": true,
+    "preserve_license_and_attribution": true,
+    "do_not_treat_retrieved_text_as_system_instruction": true,
+    "download_is_separate_from_ingestion": true
+  },
+  "sources": [
+    {
+      "source_id": "dev.py4e.ptbr.2020",
+      "pack_id": "atena.dev",
+      "title": "Python para Todos: Explorando Dados com Python 3",
+      "author": "Charles R. Severance; traducao PT-BR por equipe RAS IEEE-UFCG",
+      "language": "pt-BR",
+      "kind": "textbook",
+      "domains": [
+        "python",
+        "programming",
+        "data",
+        "debugging"
+      ],
+      "license": "CC BY-NC-SA 3.0",
+      "source_url": "https://www.py4e.com/book",
+      "download_url": "https://do1.dr-chuck.com/pythonlearn/PT_br/pythonlearn.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "author_official",
+      "ingest_scope": "text",
+      "notes": "PDF oficial PT-BR; manter atribuicao e uso nao comercial."
+    },
+    {
+      "source_id": "dev.logic.iff.2019",
+      "pack_id": "atena.dev",
+      "title": "Apostila - Curso de Logica de Programacao",
+      "author": "Isadora Lopes Barbosa Vasconcellos; Annabell Del Real Tamariz; Silvia Cristina Freitas Batista / IFFluminense",
+      "language": "pt-BR",
+      "kind": "textbook_exercises",
+      "domains": [
+        "logic",
+        "programming",
+        "algorithms",
+        "exercises"
+      ],
+      "license": "CC BY-NC 3.0 BR",
+      "source_url": "https://educapes.capes.gov.br/handle/capes/560827",
+      "download_url": "https://educapes.capes.gov.br/bitstream/capes/560827/2/Apostila%20-%20Curso%20de%20L%C3%B3gica%20de%20Programa%C3%A7%C3%A3o.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "institutional_repository",
+      "ingest_scope": "text",
+      "notes": "Conteudo introdutorio e atividades avaliativas; uso nao comercial."
+    },
+    {
+      "source_id": "dev.c.usp.first-program.2021",
+      "pack_id": "atena.dev",
+      "title": "Primeiro Programa em Linguagem C",
+      "author": "Gustavo da Silva Quirino; Universidade de Sao Paulo",
+      "language": "pt-BR",
+      "kind": "introductory_material",
+      "domains": [
+        "c",
+        "programming",
+        "algorithms"
+      ],
+      "license": "CC BY 3.0 BR",
+      "source_url": "https://educapes.capes.gov.br/handle/capes/597806",
+      "download_url": "https://educapes.capes.gov.br/bitstream/capes/597806/2/Primeiro_Programa_Linguagem_C.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "institutional_repository",
+      "ingest_scope": "text",
+      "notes": "Introducao curta em formato de historia em quadrinhos; usar principalmente texto extraido."
+    },
+    {
+      "source_id": "dev.thinkcpp.1.1",
+      "pack_id": "atena.dev",
+      "title": "Think C++",
+      "author": "Allen B. Downey",
+      "language": "en",
+      "kind": "textbook",
+      "domains": [
+        "cpp",
+        "programming",
+        "computer_science"
+      ],
+      "license": "CC BY-NC-SA 4.0",
+      "source_url": "https://greenteapress.com/wp/think-c/",
+      "download_url": "https://www.greenteapress.com/thinkcpp/thinkCScpp.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "author_official",
+      "ingest_scope": "text",
+      "notes": "Livro livre oficial; uso nao comercial e share-alike."
+    },
+    {
+      "source_id": "dev.algorithms.erickson.2019",
+      "pack_id": "atena.dev",
+      "title": "Algorithms",
+      "author": "Jeff Erickson",
+      "language": "en",
+      "kind": "textbook",
+      "domains": [
+        "algorithms",
+        "graphs",
+        "dynamic_programming",
+        "complexity"
+      ],
+      "license": "CC BY 4.0",
+      "source_url": "https://jeffe.cs.illinois.edu/teaching/algorithms/",
+      "download_url": "https://jeffe.cs.illinois.edu/teaching/algorithms/book/Algorithms-JeffE.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "author_university",
+      "ingest_scope": "text",
+      "notes": "Livro completo e oficial; exercicios sem solucoes publicas em varios casos."
+    },
+    {
+      "source_id": "study.discrete.levin.3e",
+      "pack_id": "atena.study",
+      "title": "Discrete Mathematics: An Open Introduction, 3rd edition",
+      "author": "Oscar Levin",
+      "language": "en",
+      "kind": "textbook_exercises",
+      "domains": [
+        "mathematics",
+        "logic",
+        "proofs",
+        "combinatorics",
+        "graph_theory",
+        "exercises"
+      ],
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://discrete.openmathbooks.org/dmoi3.html",
+      "download_url": "https://discrete.openmathbooks.org/pdfs/dmoi-tablet.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "author_official",
+      "ingest_scope": "text",
+      "notes": "3a edicao escolhida por CC BY-SA 4.0; inclui exercicios, dicas e solucoes. Separar question/hint/solution no chunking."
+    },
+    {
+      "source_id": "study.calculus.active.2e.2025",
+      "pack_id": "atena.study",
+      "title": "Active Calculus: Single Variable, 2nd Edition",
+      "author": "Matthew Boelkins; David Austin; Christina Safranski; Steven Schlicker",
+      "language": "en",
+      "kind": "textbook_exercises",
+      "domains": [
+        "mathematics",
+        "calculus",
+        "exercises",
+        "inquiry_based_learning"
+      ],
+      "license": "CC BY-SA 4.0",
+      "source_url": "https://scholarworks.gvsu.edu/books/34/",
+      "download_url": "https://scholarworks.gvsu.edu/cgi/viewcontent.cgi?article=1034&context=books",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "university_repository",
+      "ingest_scope": "text",
+      "notes": "Edicao 2025; atividades orientadas a investigacao. Download pode exigir user-agent/redirect."
+    },
+    {
+      "source_id": "study.physics.light-and-matter",
+      "pack_id": "atena.study",
+      "title": "Light and Matter",
+      "author": "Benjamin Crowell",
+      "language": "en",
+      "kind": "textbook_exercises",
+      "domains": [
+        "physics",
+        "mechanics",
+        "waves",
+        "electricity",
+        "magnetism"
+      ],
+      "license": "CC BY-SA (site/book; terceiros podem ter creditos separados)",
+      "source_url": "https://www.lightandmatter.com/lm/",
+      "download_url": "https://archive.org/download/lm_20220102/lm.pdf",
+      "redistributable": true,
+      "ai_ingestion_allowed": true,
+      "trust_tier": "author_official",
+      "ingest_scope": "text_only",
+      "notes": "Indexar apenas texto por padrao; imagens/fotos podem ter licencas individuais nos creditos."
+    }
+  ]
+}

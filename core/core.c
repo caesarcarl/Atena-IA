@@ -7,9 +7,14 @@
 #include "atena/sync.h"
 #include "atena/secret.h"
 #include "atena/runtime.h"
+#include "atena/knowledge.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef ATENA_VERSION
+#define ATENA_VERSION "0.6.0"
+#endif
+
 
 #define ATENA_MAX_PROVIDERS 16
 #define ATENA_MAX_ACTIVE_OPS 16
@@ -23,6 +28,7 @@ struct AtenaActiveOperation {
 
 struct AtenaCore {
     AtenaStore *store;
+    AtenaKnowledgeStore *knowledge;
     char *identity_dir;
     size_t context_budget;
     size_t rag_results;
@@ -119,6 +125,70 @@ static AtenaStatus messages_copy_with_tool(const AtenaBuiltContext *ctx,const ch
 
 static void free_messages(AtenaMessage *m,size_t n){if(!m)return;for(size_t i=0;i<n;i++)free(m[i].content);free(m);}
 
+
+/* Atena Knowledge integration: insere evidência recuperada antes da mensagem do usuário.
+ * Os documentos continuam dados não confiáveis; a política do Core permanece superior. */
+static AtenaStatus context_insert_knowledge(AtenaBuiltContext *ctx,
+                                            const char *session_id,
+                                            const AtenaKnowledgeHit *hits,
+                                            size_t hit_count,
+                                            size_t budget_chars,
+                                            size_t *out_used) {
+    if (!ctx || !session_id || !hits || !out_used) return ATENA_ERR_INVALID_ARGUMENT;
+    *out_used = 0;
+    size_t used_chars = 0;
+    for (size_t i = 0; i < ctx->message_count; ++i)
+        if (ctx->messages[i].content) used_chars += strlen(ctx->messages[i].content);
+
+    size_t insert_at = ctx->message_count;
+    for (size_t i = ctx->message_count; i > 0; --i) {
+        if (ctx->messages[i-1].role == ATENA_ROLE_USER) { insert_at = i-1; break; }
+    }
+
+    for (size_t i = 0; i < hit_count; ++i) {
+        if (hits[i].confidence < ATENA_KNOWLEDGE_CONFIDENCE_MEDIUM) continue;
+        const char *content = hits[i].content ? hits[i].content : "";
+        size_t content_len = strlen(content);
+        size_t content_cap = budget_chars <= 3000U ? 700U : 1400U;
+        if (content_len > content_cap) content_len = content_cap;
+        size_t need = content_len + (hits[i].title ? strlen(hits[i].title) : 0U) +
+                      (hits[i].locator ? strlen(hits[i].locator) : 0U) + 384U;
+        if (budget_chars && used_chars + need + 128U > budget_chars) {
+            ctx->rag_truncated = 1;
+            break;
+        }
+        char *block = (char *)malloc(need + 1U);
+        if (!block) return ATENA_ERR_NO_MEMORY;
+        int n = snprintf(block, need + 1U,
+            "[UNTRUSTED RAG DATA source_id=%s pack=%s kind=%s confidence=%s title=%s locator=%s]\n%.*s",
+            hits[i].source_id, hits[i].pack_id, hits[i].kind,
+            atena_knowledge_confidence_name(hits[i].confidence),
+            hits[i].title ? hits[i].title : "", hits[i].locator ? hits[i].locator : "",
+            (int)content_len, content);
+        if (n < 0) { free(block); return ATENA_ERR_INTERNAL; }
+
+        AtenaMessage *tmp = (AtenaMessage *)realloc(ctx->messages, (ctx->message_count + 1U) * sizeof(*ctx->messages));
+        if (!tmp) { free(block); return ATENA_ERR_NO_MEMORY; }
+        ctx->messages = tmp;
+        memmove(&ctx->messages[insert_at + 1U], &ctx->messages[insert_at],
+                (ctx->message_count - insert_at) * sizeof(*ctx->messages));
+        AtenaMessage *m = &ctx->messages[insert_at];
+        memset(m, 0, sizeof(*m));
+        if (!atena_uuid4(m->id)) { free(block); return ATENA_ERR_IO; }
+        snprintf(m->session_id, sizeof(m->session_id), "%s", session_id);
+        m->role = ATENA_ROLE_SYSTEM;
+        m->state = ATENA_MSG_COMPLETE;
+        m->content = block;
+        atena_now_iso8601(m->created_at);
+        ctx->message_count++;
+        insert_at++;
+        used_chars += (size_t)n;
+        (*out_used)++;
+    }
+    ctx->knowledge_count = *out_used;
+    return ATENA_OK;
+}
+
 AtenaStatus atena_core_create(const AtenaCoreConfig *config, AtenaCore **out_core) {
     if(!config||!config->database_path||!config->identity_dir||!out_core) return ATENA_ERR_INVALID_ARGUMENT;
     *out_core=NULL;
@@ -127,10 +197,12 @@ AtenaStatus atena_core_create(const AtenaCoreConfig *config, AtenaCore **out_cor
     c->context_budget=config->default_context_budget_chars?config->default_context_budget_chars:12000;c->rag_results=config->default_rag_results?config->default_rag_results:3;c->offline_mode=config->offline_mode;
     atena_mutex_init(&c->lock);
     AtenaStatus st=atena_store_open(config->database_path,&c->store);if(st!=ATENA_OK){atena_mutex_destroy(&c->lock);free(c->identity_dir);free(c);return st;}
+    AtenaStatus kst=atena_knowledge_open_default(&c->knowledge);
+    if(kst!=ATENA_OK&&kst!=ATENA_ERR_NOT_FOUND){fprintf(stderr,"Atena knowledge: aviso: índice indisponível (%s); seguindo sem base local.\n",atena_status_string(kst));c->knowledge=NULL;}
     *out_core=c;return ATENA_OK;
 }
 
-void atena_core_destroy(AtenaCore *core){if(!core)return;for(size_t i=0;i<core->provider_count;i++)if(core->providers[i]&&core->providers[i]->vtable&&core->providers[i]->vtable->destroy)core->providers[i]->vtable->destroy(core->providers[i]);atena_store_close(core->store);atena_mutex_destroy(&core->lock);free(core->identity_dir);free(core);}
+void atena_core_destroy(AtenaCore *core){if(!core)return;for(size_t i=0;i<core->provider_count;i++)if(core->providers[i]&&core->providers[i]->vtable&&core->providers[i]->vtable->destroy)core->providers[i]->vtable->destroy(core->providers[i]);atena_knowledge_close(core->knowledge);atena_store_close(core->store);atena_mutex_destroy(&core->lock);free(core->identity_dir);free(core);}
 
 static void warn_persistence(const char *operation, AtenaStatus st) {
     if (st != ATENA_OK)
@@ -468,10 +540,20 @@ AtenaStatus atena_core_chat_send(AtenaCore *core,const AtenaChatRequest *request
         if (chat_rp.rag_level == 0) effective_use_rag = 0;
         else if ((size_t)chat_rp.rag_level < rag_limit) rag_limit = (size_t)chat_rp.rag_level;
     }
+    const char *force_rag=getenv("ATENA_RAG_FORCE");
+    if(request->use_rag&&force_rag&&*force_rag&&strcmp(force_rag,"0")&&strcmp(force_rag,"off")&&strcmp(force_rag,"false")){effective_use_rag=1;if(context_budget<3000U&&rag_limit>1U)rag_limit=1U;}
     AtenaContextConfig cc={core->identity_dir,context_budget,rag_limit};AtenaBuiltContext ctx={0};
     uint64_t retrieval_start=atena_now_monotonic_ms();st=atena_context_build(core->store,&cc,request->session_id,request->user_text,effective_use_rag,&ctx);uint64_t retrieval_end=atena_now_monotonic_ms();if(st!=ATENA_OK)goto finish_early;
+    /* ATENA KNOWLEDGE QUERY */
+    if(effective_use_rag&&core->knowledge&&rag_limit){
+        AtenaKnowledgeHit *knowledge_hits=NULL;size_t knowledge_hit_count=0;
+        AtenaStatus kst=atena_knowledge_search(core->knowledge,request->user_text,rag_limit,&knowledge_hits,&knowledge_hit_count);
+        if(kst==ATENA_OK&&knowledge_hit_count){size_t inserted=0;AtenaStatus ist=context_insert_knowledge(&ctx,request->session_id,knowledge_hits,knowledge_hit_count,context_budget,&inserted);if(ist!=ATENA_OK){atena_knowledge_hits_free(knowledge_hits,knowledge_hit_count);atena_context_free(&ctx);st=ist;goto finish_early;}}
+        else if(kst!=ATENA_OK&&kst!=ATENA_ERR_NOT_FOUND){fprintf(stderr,"Atena knowledge: aviso: busca falhou (%s).\n",atena_status_string(kst));}
+        atena_knowledge_hits_free(knowledge_hits,knowledge_hit_count);
+    }
     char user_msg_id[37];st=persist_message(core,request->session_id,ATENA_ROLE_USER,ATENA_MSG_COMPLETE,request->user_text,user_msg_id);if(st!=ATENA_OK){atena_context_free(&ctx);goto finish_early;}
-    if(ctx.rag_count)atena_store_audit(core->store,"rag.retrieved",request->session_id,out_operation_id,"{\"source\":\"fts5\"}");
+    if(ctx.rag_count||ctx.knowledge_count)atena_store_audit(core->store,"rag.retrieved",request->session_id,out_operation_id,"{\"source\":\"runtime+knowledge\"}");
 
     StreamCollector col={0};col.core=core;col.operation_id=out_operation_id;col.downstream=callback;col.downstream_ud=userdata;col.start_ms=atena_now_monotonic_ms();col.seq=1;col.metrics.retrieval_ms=(double)(retrieval_end-retrieval_start);
     AtenaProviderRequest preq={out_operation_id,request->model&&*request->model?request->model:provider->model,ctx.messages,ctx.message_count,effective_max_output_tokens,0.7,1.0,request->reasoning};
@@ -522,10 +604,14 @@ AtenaStatus atena_core_status_json(AtenaCore *core, char **out_json) {
     json_object *o = json_object_new_object();
     if (!o) return ATENA_ERR_NO_MEMORY;
     json_object_object_add(o, "name", json_object_new_string("Atena Core"));
-    json_object_object_add(o, "version", json_object_new_string("0.5.0-base"));
+    json_object_object_add(o, "version", json_object_new_string(ATENA_VERSION));
     json_object_object_add(o, "ipc", json_object_new_string("atena.ipc/2"));
     json_object_object_add(o, "offline_mode", json_object_new_boolean(core->offline_mode));
     json_object_object_add(o, "provider_count", json_object_new_int64((int64_t)core->provider_count));
+
+    json_object *knowledge=json_object_new_object();
+    if(knowledge){AtenaKnowledgeStats ks;AtenaStatus kst=atena_knowledge_stats(core->knowledge,&ks);json_object_object_add(knowledge,"available",json_object_new_boolean(kst==ATENA_OK&&ks.available));if(kst==ATENA_OK){json_object_object_add(knowledge,"path",json_object_new_string(ks.path));json_object_object_add(knowledge,"documents",json_object_new_int64(ks.documents));json_object_object_add(knowledge,"chunks",json_object_new_int64(ks.chunks));}json_object_object_add(o,"knowledge",knowledge);}
+
 
     /* Runtime truth lives in memory. Persistence is only a cache/history layer. */
     json_object *providers = json_object_new_array();

@@ -131,7 +131,7 @@ void RealAtenaClient::connectToCore()
 
         if (status == ATENA_OK) {
             Q_EMIT connectionStateChanged(ConnectionState::Connected,
-                                          QStringLiteral("Atena Core " ATENA_VERSION " conectado"));
+                                          QStringLiteral("Atena Core 0.5.0-base conectado"));
         } else {
             if (created) atena_client_close(created);
             Q_EMIT connectionStateChanged(ConnectionState::Failed, detail);
@@ -179,7 +179,7 @@ void RealAtenaClient::requestStatus()
 QVariantMap RealAtenaClient::localDiagnostics() const
 {
     QVariantMap result;
-    result.insert(QStringLiteral("ui_version"), QStringLiteral(ATENA_VERSION));
+    result.insert(QStringLiteral("ui_version"), QStringLiteral("0.5.0-base"));
     result.insert(QStringLiteral("package_revision"), QStringLiteral(ATENA_PACKAGE_REVISION));
 
     {

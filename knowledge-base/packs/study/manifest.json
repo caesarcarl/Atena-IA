@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "atena.study",
+  "version": "0.1.0",
+  "display_name": "Atena Study",
+  "description": "Base para ensino basico, medio, vestibulares, cursos e fundamentos do ensino superior.",
+  "audience": ["student", "high_school", "university", "exam_candidate"],
+  "languages": ["pt-BR", "en"],
+  "dependencies": ["atena.common"],
+  "domains": ["mathematics", "physics", "chemistry", "biology", "portuguese", "writing", "history", "geography", "philosophy", "sociology", "statistics", "study_methods", "exam_preparation", "exercises", "simulations"],
+  "retrieval": {"priority": 90, "default_max_hits": 4},
+  "distribution": {"bundled_in_demo": true, "optional": true},
+  "sources": []
+}

@@ -160,3 +160,6 @@ vgcore.*
 # Arquivos temporários do GNU patch
 *.orig
 *.rej
+
+# Atena integration/build artifacts
+build-0.6.0/

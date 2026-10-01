@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(Atena VERSION 0.6.0 LANGUAGES C CXX)
+project(Atena VERSION 0.5.2 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -15,9 +15,8 @@ endif()
 option(ATENA_BUILD_TESTS "Compilar testes" ON)
 option(ATENA_BUILD_UI "Compilar interface Qt 6 quando disponível" ON)
 option(ATENA_REQUIRE_UI "Falhar a configuração se ATENA_BUILD_UI=ON e Qt 6 não estiver disponível" OFF)
-set(ATENA_PACKAGE_REVISION "0.6.0-knowledge-rag" CACHE STRING "Revisão do pacote/distribuição da Atena")
+set(ATENA_PACKAGE_REVISION "0.5.13-memory-first" CACHE STRING "Revisão do pacote/distribuição da Atena")
 add_compile_definitions(ATENA_PACKAGE_REVISION="${ATENA_PACKAGE_REVISION}")
-add_compile_definitions(ATENA_VERSION="${PROJECT_VERSION}")
 option(ATENA_ENABLE_ASAN "Ativar AddressSanitizer" OFF)
 option(ATENA_MOBILE "Build enxuto para Android/Kali/NetHunter sem worker Python" OFF)
 option(ATENA_ENABLE_PYTHON_WORKER "Habilitar integração opcional com worker Python no desktop" ON)
@@ -79,10 +78,8 @@ endif()
 
 add_library(atena_core STATIC core/status.c core/util.c core/context.c core/core.c memory/store.c providers/mock_provider.c providers/ollama/ollama_provider.c providers/openai_compatible/openai_compatible_provider.c tools/tools.c)
 target_include_directories(atena_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_sources(atena_core PRIVATE knowledge/knowledge.c)
 target_sources(atena_core PRIVATE pedagogy/planner.c)
 target_link_libraries(atena_core PUBLIC ${ATENA_SQLITE_TARGET} ${ATENA_JSON_TARGET} ${ATENA_CURL_TARGET} OpenSSL::Crypto Threads::Threads atena_platform atena_runtime)
-target_compile_definitions(atena_core PRIVATE ATENA_KNOWLEDGE_INSTALLED_DB="${CMAKE_INSTALL_FULL_DATADIR}/atena/knowledge/knowledge.sqlite")
 if(WIN32)
   target_link_libraries(atena_core PUBLIC bcrypt)
 endif()
@@ -215,22 +212,9 @@ else()
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/atena-core.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/user COMPONENT Runtime)
 endif()
 
-
-# Atena Knowledge: base prebuilt + metodologia + benchmark.
-if(EXISTS "${CMAKE_SOURCE_DIR}/knowledge-base/prebuilt/knowledge.sqlite")
-  install(FILES knowledge-base/prebuilt/knowledge.sqlite
-          DESTINATION ${CMAKE_INSTALL_DATADIR}/atena/knowledge COMPONENT Runtime)
-endif()
-install(DIRECTORY knowledge-base/methodology/
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/atena/knowledge/methodology COMPONENT Runtime OPTIONAL)
-install(DIRECTORY knowledge-base/evaluation/
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/atena/knowledge/evaluation COMPONENT Runtime OPTIONAL)
-install(DIRECTORY knowledge-base/catalog/
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/atena/knowledge/catalog COMPONENT Runtime OPTIONAL)
-
 if(ATENA_BUILD_TESTS AND NOT WIN32)
   enable_testing()
-  foreach(test_name IN ITEMS test_core test_persistence test_migration_legacy test_migration_intermediate test_migration_constraints test_rag test_ipc_sdk test_tools test_protocol test_context_budget test_pedagogy test_knowledge test_runtime)
+  foreach(test_name IN ITEMS test_core test_persistence test_migration_legacy test_migration_intermediate test_migration_constraints test_rag test_ipc_sdk test_tools test_protocol test_context_budget test_pedagogy test_runtime)
     add_executable(${test_name} tests/${test_name}.c)
     target_link_libraries(${test_name} PRIVATE atena_core atena_ipc_server atena_client)
     add_test(NAME ${test_name} COMMAND ${test_name})

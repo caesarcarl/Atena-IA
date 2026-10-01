@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName(QStringLiteral("AthenasOS"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("athenas.local"));
     QCoreApplication::setApplicationName(QStringLiteral("Atena"));
-    QCoreApplication::setApplicationVersion(QStringLiteral(ATENA_VERSION));
+    QCoreApplication::setApplicationVersion(QStringLiteral("0.5.0-base"));
 
     QApplication::setApplicationDisplayName(QStringLiteral("Atena"));
     QApplication::setDesktopFileName(QStringLiteral("atena"));

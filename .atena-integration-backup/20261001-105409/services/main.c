@@ -7,10 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef ATENA_VERSION
-#define ATENA_VERSION "0.6.0"
-#endif
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -121,7 +117,7 @@ int main(int argc,char **argv){
 #else
     signal(SIGINT,on_signal);signal(SIGTERM,on_signal);
 #endif
-    fprintf(stdout,"Atena Core " ATENA_VERSION " pronto em %s | storage=%s\n",paths.endpoint,storage_mode);fflush(stdout);
+    fprintf(stdout,"Atena Core 0.5.0-base pronto em %s | storage=%s\n",paths.endpoint,storage_mode);fflush(stdout);
     while(!stop_requested){
 #ifdef _WIN32
         Sleep(250);

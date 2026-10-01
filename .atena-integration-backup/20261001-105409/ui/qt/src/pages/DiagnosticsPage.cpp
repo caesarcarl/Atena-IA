@@ -62,7 +62,7 @@ DiagnosticsPage::DiagnosticsPage(AtenaClientFacade *client, QWidget *parent)
     layout->addWidget(m_output, 1);
 
     const QVariantMap localInfo{
-        {QStringLiteral("ui_version"), QStringLiteral(ATENA_VERSION)},
+        {QStringLiteral("ui_version"), QStringLiteral("0.5.0-base")},
         {QStringLiteral("package_revision"), QStringLiteral(ATENA_PACKAGE_REVISION)},
         {QStringLiteral("qt_version"), QString::fromLatin1(qVersion())},
         {QStringLiteral("os"), QSysInfo::prettyProductName()},
@@ -100,7 +100,7 @@ void DiagnosticsPage::display(const QVariantMap &payload)
 {
     QVariantMap merged = payload;
     if (!merged.contains(QStringLiteral("ui_version")))
-        merged.insert(QStringLiteral("ui_version"), QStringLiteral(ATENA_VERSION));
+        merged.insert(QStringLiteral("ui_version"), QStringLiteral("0.5.0-base"));
     if (!merged.contains(QStringLiteral("package_revision")))
         merged.insert(QStringLiteral("package_revision"), QStringLiteral(ATENA_PACKAGE_REVISION));
     if (!merged.contains(QStringLiteral("qt_version")))

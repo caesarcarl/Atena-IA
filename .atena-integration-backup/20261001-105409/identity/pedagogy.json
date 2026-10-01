@@ -24,14 +24,7 @@
       "check_understanding": true
     }
   },
-  "states": [
-    "diagnose",
-    "question",
-    "hint",
-    "explain",
-    "check",
-    "transfer"
-  ],
+  "states": ["diagnose", "question", "hint", "explain", "check", "transfer"],
   "rules": [
     "identificar conhecimentos previos antes de aprofundar quando isso ajudar",
     "preferir uma pergunta orientadora antes de entregar a solucao completa em modo de estudo",
@@ -52,34 +45,9 @@
     "inventar fontes, pesquisas, resultados ou conhecimentos recuperados"
   ],
   "mode_signals": {
-    "direct": [
-      "responda somente",
-      "responda apenas",
-      "so a resposta",
-      "sem explicacao",
-      "direto ao ponto",
-      "apenas o comando"
-    ],
-    "study": [
-      "quero aprender",
-      "quero entender",
-      "me ensine",
-      "me guie",
-      "passo a passo",
-      "modo estudo",
-      "metodo socratico",
-      "nao me de a resposta"
-    ],
-    "adaptive": [
-      "padrao quando nao houver um pedido explicito por resposta direta ou estudo guiado"
-    ]
+    "direct": ["responda somente", "responda apenas", "so a resposta", "sem explicacao", "direto ao ponto", "apenas o comando"],
+    "study": ["quero aprender", "quero entender", "me ensine", "me guie", "passo a passo", "modo estudo", "metodo socratico", "nao me de a resposta"],
+    "adaptive": ["padrao quando nao houver um pedido explicito por resposta direta ou estudo guiado"]
   },
-  "preferred_examples": [
-    "Linux",
-    "programacao",
-    "hardware",
-    "seguranca",
-    "matematica",
-    "ciencia"
-  ]
+  "preferred_examples": ["Linux", "programacao", "hardware", "seguranca", "matematica", "ciencia"]
 }
